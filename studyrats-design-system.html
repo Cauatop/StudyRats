@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StudyRats — Design System</title>
+<style>
+/* ==========================================================================
+   StudyRats — Design System v1.0
+   Base: tela de Login existente + Documento de Requisitos (MVP-01 a MVP-13)
+
+   Como usar
+   1. Importe uma única vez, em src/main.jsx:  import "./styles/studyrats-design-system.css";
+   2. Use as classes nos componentes (.btn, .input, .card, .modal ...).
+   3. Os tokens abaixo (variáveis CSS) são a fonte da verdade. Não use hex solto.
+   4. Envolva as páginas logadas em <div className="app-shell"> (navbar + page + tabbar).
+   5. Renderize .modal-backdrop e .toast-region FORA do .app-shell (no body, via
+      createPortal): .app-shell usa container queries e isso prende elementos fixed.
+
+   Índice
+   1. Tokens   2. Base   3. Tipografia   4. Layout   5. Ícones   6. Botões
+   7. Formulários   8. Feedback (alert, toast, badge, tag)   9. Cards
+   10. Progresso   11. Navegação (navbar, tabbar, menu, segmented)
+   12. Modal   13. Telas do MVP (timer, ofensiva, sessões, metas, gráficos, share)
+   14. Autenticação (classes já existentes)
+   ========================================================================== */
+
+/* ==========================================================================
+   1. TOKENS
+   ========================================================================== */
+:root {
+  /* ---- Cores: marca ---- */
+  --brand-dark: #1a1a1a;
+  --brand-orange: #f2a900;
+  --brand-orange-hover: #e09b00;
+  --brand-orange-active: #c98d00;
+
+  --orange-50: #fff8e5;
+  --orange-100: #ffefc2;
+  --orange-200: #ffe08a;
+  --orange-300: #ffd04d;
+  --orange-500: #f2a900;
+  --orange-600: #e09b00;
+  --orange-700: #c98d00;
+  --orange-800: #8f5f00; /* laranja para TEXTO sobre fundo claro (contraste AA) */
+
+  /* ---- Cores: neutros ---- */
+  --gray-0: #ffffff;
+  --gray-50: #f4f4f5;
+  --gray-100: #ebebed;
+  --gray-200: #e2e2e5;
+  --gray-300: #cdcdd2;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #52525b;
+  --gray-700: #3f3f46;
+  --gray-900: #1a1a1a;
+
+  /* ---- Cores: semânticas de superfície e texto ---- */
+  --color-bg: #ffffff;
+  --color-surface: var(--gray-50);
+  --color-surface-raised: #ffffff;
+  --color-text: var(--brand-dark);
+  --card-bg: var(--gray-50);
+  --border-color: var(--gray-200);
+  --text-muted: var(--gray-500);        /* apoio, textos grandes ou sobre branco */
+  --text-muted-strong: var(--gray-600); /* texto pequeno sobre card cinza */
+
+  /* ---- Cores: feedback ---- */
+  --success: #15803d;
+  --success-bg: #dcfce7;
+  --success-text: #166534;
+  --success-border: #86efac;
+  --success-soft: #f0fdf4;
+
+  --error: #dc2626;
+  --error-bg: #fee2e2;
+  --error-text: #991b1b;
+  --error-border: #fca5a5;
+
+  --warning: #d97706;
+  --warning-bg: #fef3c7;
+  --warning-text: #92400e;
+  --warning-border: #fcd34d;
+
+  --info: #0284c7;
+  --info-bg: #e0f2fe;
+  --info-text: #075985;
+  --info-border: #7dd3fc;
+
+  /* ---- Cores: disciplinas (atribuídas pela ordem de cadastro, só no front) ---- */
+  --subject-1-dot: #3b82f6; --subject-1-soft: #e0ecff; --subject-1-ink: #1d4ed8;
+  --subject-2-dot: #8b5cf6; --subject-2-soft: #ede9fe; --subject-2-ink: #5b21b6;
+  --subject-3-dot: #14b8a6; --subject-3-soft: #ccfbf1; --subject-3-ink: #115e59;
+  --subject-4-dot: #ec4899; --subject-4-soft: #fce7f3; --subject-4-ink: #9d174d;
+  --subject-5-dot: #22c55e; --subject-5-soft: #dcfce7; --subject-5-ink: #166534;
+  --subject-6-dot: #ea580c; --subject-6-soft: #ffedd5; --subject-6-ink: #9a3412;
+
+  /* ---- Tipografia ---- */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --text-xs: 0.78rem;
+  --text-sm: 0.85rem;
+  --text-base: 0.95rem;
+  --text-md: 1rem;
+  --text-lg: 1.15rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.9rem;
+  --text-display: clamp(2.5rem, 9vw, 3.5rem);
+
+  /* ---- Espaçamento (base 4px) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* ---- Bordas ---- */
+  --radius-sm: 6px;
+  --radius-md: 10px;   /* inputs */
+  --radius-lg: 16px;   /* cards */
+  --radius-xl: 24px;   /* card de auth, modal */
+  --radius-pill: 999px; /* botões, badges, chips */
+
+  /* ---- Sombras ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.16);
+  --focus-ring: 0 0 0 3px rgba(242, 169, 0, 0.35);
+
+  /* ---- Movimento ---- */
+  --ease: 0.15s ease;
+}
+
+/* ==========================================================================
+   2. BASE
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brand-orange); outline-offset: 2px; }
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==========================================================================
+   3. TIPOGRAFIA
+   ========================================================================== */
+.t-display { font-size: var(--text-display); font-weight: 800; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.t-title   { font-size: var(--text-2xl); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+.t-h1      { font-size: var(--text-xl); font-weight: 700; line-height: 1.2; }
+.t-h2      { font-size: var(--text-lg); font-weight: 700; line-height: 1.25; }
+.t-h3      { font-size: var(--text-md); font-weight: 700; line-height: 1.3; }
+.t-body    { font-size: var(--text-base); }
+.t-small   { font-size: var(--text-sm); }
+.t-caption { font-size: var(--text-xs); }
+.t-muted   { color: var(--text-muted); }
+.t-num     { font-variant-numeric: tabular-nums; }
+
+.link {
+  color: var(--orange-800);
+  font-weight: 700;
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.link:hover { text-decoration: underline; }
+
+.logo {
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--brand-dark);
+  text-decoration: none;
+}
+.logo .brand-accent { color: var(--brand-orange); }
+
+/* ==========================================================================
+   4. LAYOUT
+   ========================================================================== */
+.app-shell {
+  container: app / inline-size;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.page {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-5) var(--space-12);
+  flex: 1;
+}
+
+.page__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+.page__title { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+.page__subtitle { margin-top: var(--space-1); color: var(--text-muted); font-size: var(--text-base); }
+
+.stack { display: flex; flex-direction: column; gap: var(--stack-gap, var(--space-4)); }
+.stack--sm { --stack-gap: var(--space-2); }
+.stack--lg { --stack-gap: var(--space-6); }
+
+.row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--row-gap, var(--space-3)); }
+.row--between { justify-content: space-between; }
+.row--nowrap { flex-wrap: nowrap; }
+.spacer { flex: 1; }
+
+.grid { display: grid; gap: var(--space-4); }
+.grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid--stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.grid--main-side { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; }
+
+.divider { height: 1px; border: 0; background: var(--border-color); margin: var(--space-4) 0; }
+
+@container app (max-width: 720px) {
+  .page { padding: var(--space-5) var(--space-4) var(--space-8); }
+  .grid--2, .grid--3, .grid--main-side { grid-template-columns: minmax(0, 1fr); }
+  .page__title { font-size: var(--text-xl); }
+}
+
+/* ==========================================================================
+   5. ÍCONES  (recomendado: lucide-react — mesmo traço de 2px)
+   ========================================================================== */
+.icon {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.icon--fill { fill: currentColor; }
+.icon--lg { width: 1.5rem; height: 1.5rem; }
+
+/* ==========================================================================
+   6. BOTÕES
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 0.7rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-md);
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ease), border-color var(--ease), box-shadow var(--ease), color var(--ease);
+}
+.btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled,
+.btn[aria-disabled="true"] { opacity: 0.6; cursor: not-allowed; }
+
+.btn--primary { background: var(--brand-orange); color: var(--brand-dark); }
+.btn--primary:hover:not(:disabled) { background: var(--brand-orange-hover); }
+.btn--primary:active:not(:disabled) { background: var(--brand-orange-active); }
+
+.btn--dark { background: var(--brand-dark); color: #fff; }
+.btn--dark:hover:not(:disabled) { background: #000; }
+
+.btn--secondary { background: #fff; border-color: var(--border-color); color: var(--brand-dark); }
+.btn--secondary:hover:not(:disabled) { background: var(--gray-50); border-color: var(--gray-300); }
+
+.btn--ghost { background: transparent; color: var(--text-muted-strong); }
+.btn--ghost:hover:not(:disabled) { background: var(--gray-100); color: var(--brand-dark); }
+
+.btn--danger { background: var(--error); color: #fff; }
+.btn--danger:hover:not(:disabled) { background: #b91c1c; }
+.btn--danger-outline { background: #fff; border-color: var(--error-border); color: var(--error-text); }
+.btn--danger-outline:hover:not(:disabled) { background: var(--error-bg); }
+
+.btn--sm { padding: 0.45rem 0.9rem; font-size: var(--text-sm); }
+.btn--lg { padding: 0.95rem 1.6rem; font-size: 1.1rem; }
+.btn--block { width: 100%; }
+.btn--icon { width: 2.5rem; height: 2.5rem; padding: 0; }
+.btn--icon.btn--sm { width: 2.1rem; height: 2.1rem; }
+
+/* ==========================================================================
+   7. FORMULÁRIOS
+   ========================================================================== */
+.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.label { font-size: var(--text-sm); font-weight: 600; }
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  color: var(--brand-dark);
+  font-size: var(--text-base);
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.input::placeholder,
+.textarea::placeholder { color: var(--gray-400); }
+.input:hover:not(:disabled),
+.select:hover:not(:disabled) { border-color: var(--gray-300); }
+.input:focus,
+.select:focus,
+.textarea:focus { outline: none; border-color: var(--brand-orange); box-shadow: var(--focus-ring); }
+.input:disabled,
+.select:disabled { background: var(--gray-100); color: var(--text-muted); cursor: not-allowed; }
+.input.is-invalid,
+.select.is-invalid { border-color: var(--error); }
+.input.is-invalid:focus { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2); }
+
+/* O navegador pinta o autofill de azul claro. Mantemos o campo branco. */
+.input:-webkit-autofill,
+.auth-form input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset;
+  -webkit-text-fill-color: var(--brand-dark);
+}
+
+.select {
+  appearance: none;
+  padding-right: 2.5rem;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.9rem center;
+}
+
+.field-hint  { color: var(--text-muted); font-size: 0.78rem; margin: 0.35rem 0 0; }
+.field-error { color: var(--error-text); font-size: 0.78rem; margin: 0.35rem 0 0; }
+
+.password-field { position: relative; display: flex; align-items: center; }
+.password-field .input,
+.password-field input { padding-right: 4.5rem; }
+.password-toggle {
+  position: absolute;
+  right: 0.9rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.password-toggle:hover { color: var(--brand-dark); }
+
+/* Campo com unidade (ex.: horas e minutos da meta) */
+.input-group { display: flex; align-items: stretch; }
+.input-group .input { border-top-right-radius: 0; border-bottom-right-radius: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.input-group__addon {
+  display: grid;
+  place-items: center;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-color);
+  border-left: 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--gray-50);
+  color: var(--text-muted-strong);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   8. FEEDBACK
+   ========================================================================== */
+.alert,
+.form-error,
+.form-success {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--alert-border, transparent);
+  border-radius: var(--radius-md);
+  background: var(--alert-bg, var(--info-bg));
+  color: var(--alert-text, var(--info-text));
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+.alert .icon { margin-top: 2px; }
+.alert__body { flex: 1; min-width: 0; }
+.alert__title { font-weight: 700; }
+.alert__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-3); }
+
+.alert--info    { --alert-bg: var(--info-bg);    --alert-text: var(--info-text);    --alert-border: var(--info-border); }
+.alert--success,
+.form-success   { --alert-bg: var(--success-bg); --alert-text: var(--success-text); --alert-border: var(--success-border); }
+.alert--warning { --alert-bg: var(--warning-bg); --alert-text: var(--warning-text); --alert-border: var(--warning-border); }
+.alert--error,
+.form-error     { --alert-bg: var(--error-bg);   --alert-text: var(--error-text);   --alert-border: var(--error-border); }
+.alert--brand   { --alert-bg: var(--orange-50);  --alert-text: var(--brand-dark);   --alert-border: var(--orange-200); }
+.form-error, .form-success { margin-bottom: 0.5rem; }
+
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-6);
+  transform: translateX(-50%);
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  pointer-events: none;
+}
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--radius-pill);
+  background: var(--brand-dark);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: sr-toast-in 0.2s ease;
+}
+.toast--success .icon { color: #4ade80; }
+.toast--error .icon { color: #f87171; }
+@keyframes sr-toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 720px) { .toast-region { bottom: 5.5rem; } }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--gray-100);
+  color: var(--gray-700);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.badge--brand   { background: var(--orange-100); color: var(--orange-800); }
+.badge--success { background: var(--success-bg); color: var(--success-text); }
+.badge--warning { background: var(--warning-bg); color: var(--warning-text); }
+.badge--error   { background: var(--error-bg);   color: var(--error-text); }
+.badge--info    { background: var(--info-bg);    color: var(--info-text); }
+
+/* Cores de disciplina: aplique .subject-1 ... .subject-6 no elemento */
+.subject-1 { --subject-dot: var(--subject-1-dot); --subject-soft: var(--subject-1-soft); --subject-ink: var(--subject-1-ink); }
+.subject-2 { --subject-dot: var(--subject-2-dot); --subject-soft: var(--subject-2-soft); --subject-ink: var(--subject-2-ink); }
+.subject-3 { --subject-dot: var(--subject-3-dot); --subject-soft: var(--subject-3-soft); --subject-ink: var(--subject-3-ink); }
+.subject-4 { --subject-dot: var(--subject-4-dot); --subject-soft: var(--subject-4-soft); --subject-ink: var(--subject-4-ink); }
+.subject-5 { --subject-dot: var(--subject-5-dot); --subject-soft: var(--subject-5-soft); --subject-ink: var(--subject-5-ink); }
+.subject-6 { --subject-dot: var(--subject-6-dot); --subject-soft: var(--subject-6-soft); --subject-ink: var(--subject-6-ink); }
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--subject-soft, var(--gray-100));
+  color: var(--subject-ink, var(--gray-700));
+  font-size: var(--text-xs);
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.tag__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--subject-dot, var(--gray-500)); }
+
+/* ==========================================================================
+   9. CARDS
+   ========================================================================== */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.card--raised { background: #fff; box-shadow: var(--shadow-md); }
+.card--flat { background: #fff; }
+.card--brand { background: var(--orange-50); border-color: var(--orange-200); }
+.card--success { background: var(--success-soft); border-color: var(--success-border); }
+.card--interactive { cursor: pointer; transition: border-color var(--ease), box-shadow var(--ease); }
+.card--interactive:hover { border-color: var(--gray-300); box-shadow: var(--shadow-md); }
+
+.card__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+.card__title { font-size: var(--text-md); font-weight: 700; }
+
+.stat__label { color: var(--text-muted-strong); font-size: var(--text-sm); font-weight: 600; }
+.stat__value { font-size: var(--text-2xl); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; margin-top: var(--space-1); }
+.stat__meta { color: var(--text-muted-strong); font-size: var(--text-sm); margin-top: var(--space-1); }
+
+.empty { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); text-align: center; padding: var(--space-10) var(--space-4); }
+.empty__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--orange-100); color: var(--orange-800); margin-bottom: var(--space-2); }
+.empty__title { font-weight: 700; font-size: var(--text-lg); }
+.empty__text { color: var(--text-muted-strong); font-size: var(--text-base); max-width: 36ch; margin-bottom: var(--space-3); }
+
+/* ==========================================================================
+   10. PROGRESSO
+   ========================================================================== */
+.progress { height: 10px; border-radius: var(--radius-pill); background: var(--gray-200); overflow: hidden; }
+.progress--lg { height: 14px; }
+.progress__bar { height: 100%; width: 0; border-radius: inherit; background: var(--subject-dot, var(--brand-orange)); transition: width 0.4s ease; }
+.progress--brand .progress__bar { background: var(--brand-orange); }
+.progress--done .progress__bar { background: var(--success); }
+
+/* ==========================================================================
+   11. NAVEGAÇÃO
+   ========================================================================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: saturate(1.4) blur(8px);
+  border-bottom: 1px solid var(--border-color);
+}
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  max-width: 1040px;
+  height: 64px;
+  margin: 0 auto;
+  padding: 0 var(--space-5);
+}
+.navbar__links { display: flex; gap: var(--space-1); flex: 1; }
+.navbar__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.5rem 0.9rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-muted-strong);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--ease), color var(--ease);
+}
+.navbar__link:hover { background: var(--gray-100); color: var(--brand-dark); }
+.navbar__link.is-active,
+.navbar__link[aria-current="page"] { background: var(--orange-100); color: var(--brand-dark); }
+.navbar__actions { display: flex; align-items: center; gap: var(--space-3); margin-left: auto; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--orange-200);
+  border-radius: var(--radius-pill);
+  background: var(--orange-50);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.chip .icon { color: var(--brand-orange); }
+
+.avatar {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--brand-dark);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-wrap { position: relative; }
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 60;
+  min-width: 210px;
+  padding: var(--space-1);
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+.menu[hidden] { display: none; }
+.menu__header { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border-color); margin-bottom: var(--space-1); }
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.menu__item:hover { background: var(--gray-100); }
+
+.tabbar {
+  display: none;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--space-1);
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  padding: var(--space-2) var(--space-2) calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border-color);
+}
+.tabbar__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.4rem 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+.tabbar__item .icon { width: 1.3rem; height: 1.3rem; }
+.tabbar__item.is-active { background: var(--orange-100); color: var(--brand-dark); }
+
+.segmented { display: inline-flex; max-width: 100%; overflow-x: auto; padding: 3px; border-radius: var(--radius-pill); background: var(--gray-100); }
+.segmented__item {
+  padding: 0.4rem 0.95rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--text-muted-strong);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--ease), color var(--ease);
+}
+.segmented__item:hover { color: var(--brand-dark); }
+.segmented__item.is-active { background: #fff; color: var(--brand-dark); box-shadow: var(--shadow-sm); }
+
+/* Responsivo do app-shell: abaixo de 720px de largura do próprio shell.
+   Fica DEPOIS das definições de .navbar e .tabbar para vencer na cascata. */
+@container app (max-width: 720px) {
+  .navbar__links { display: none; }
+  .navbar__inner { padding: 0 var(--space-4); gap: var(--space-3); }
+  .tabbar { display: grid; }
+  .hide-mobile { display: none !important; }
+}
+
+/* ==========================================================================
+   12. MODAL
+   ========================================================================== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(26, 26, 26, 0.5);
+  animation: sr-fade-in 0.15s ease;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal {
+  width: 100%;
+  max-width: 440px;
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  padding: var(--space-6);
+  background: #fff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  animation: sr-modal-in 0.2s ease;
+}
+.modal__title { font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; }
+.modal__text { margin-top: var(--space-2); color: var(--text-muted-strong); font-size: var(--text-base); }
+.modal__body { margin-top: var(--space-5); }
+.modal__actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-6); }
+@keyframes sr-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sr-modal-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (max-width: 520px) {
+  .modal-backdrop { align-items: flex-end; padding: 0; }
+  .modal { max-width: none; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+  .modal__actions .btn { flex: 1; }
+}
+
+/* ==========================================================================
+   13. TELAS DO MVP
+   ========================================================================== */
+
+/* ---- Temporizador (MVP-03/04/05) ---- */
+.timer { display: flex; flex-direction: column; align-items: center; gap: var(--space-5); text-align: center; }
+.timer__ring { position: relative; width: 250px; max-width: 100%; aspect-ratio: 1; }
+.timer__ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.timer__track { stroke: var(--gray-200); }
+.timer__progress { stroke: var(--brand-orange); stroke-linecap: round; transition: stroke-dashoffset 0.5s linear, stroke 0.3s ease; }
+.timer--done .timer__progress { stroke: var(--success); }
+.timer__center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; }
+.timer__time { font-size: 2.5rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.timer--paused .timer__time { color: var(--text-muted); }
+.timer__label { color: var(--text-muted-strong); font-size: var(--text-xs); max-width: 16ch; line-height: 1.3; }
+.timer__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-3); }
+.pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: sr-pulse 1.6s ease-out infinite; }
+@keyframes sr-pulse { 0% { box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.5); } 100% { box-shadow: 0 0 0 9px rgba(21, 128, 61, 0); } }
+
+/* ---- Ofensiva (MVP-08) ---- */
+.streak { display: flex; align-items: center; gap: var(--space-4); }
+.streak__flame { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: var(--brand-orange); color: var(--brand-dark); flex: none; }
+.streak__flame .icon { width: 1.7rem; height: 1.7rem; }
+.streak__value { font-size: 2.75rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.streak__label { color: var(--text-muted-strong); font-size: var(--text-sm); font-weight: 600; }
+
+.week { display: flex; justify-content: space-between; gap: var(--space-1); }
+.week__day { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); color: var(--text-muted-strong); font-size: 0.72rem; font-weight: 600; }
+.day-dot { display: grid; place-items: center; width: 30px; height: 30px; border: 1.5px solid var(--gray-300); border-radius: 50%; background: #fff; color: var(--brand-dark); }
+.day-dot .icon { width: 0.9rem; height: 0.9rem; stroke-width: 3; }
+.day-dot--done { background: var(--brand-orange); border-color: var(--brand-orange); }
+.day-dot--today { border: 2px solid var(--brand-orange); }
+.day-dot--missed { background: var(--gray-100); border-color: var(--gray-200); color: var(--gray-400); }
+.day-dot--future { border-style: dashed; border-color: var(--gray-300); background: transparent; }
+
+.heatmap { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.heatmap__head { color: var(--text-muted-strong); font-size: 0.72rem; font-weight: 600; text-align: center; }
+.heatmap__cell { aspect-ratio: 1; border-radius: var(--radius-sm); background: var(--gray-200); }
+.heatmap__cell--done { background: var(--brand-orange); }
+.heatmap__cell--today { background: #fff; box-shadow: inset 0 0 0 2px var(--brand-orange); }
+.heatmap__cell--future { background: transparent; box-shadow: inset 0 0 0 1px var(--gray-200); }
+
+/* ---- Sessões / histórico (MVP-07) ---- */
+.session-list { background: #fff; border: 1px solid var(--border-color); border-radius: var(--radius-lg); overflow: hidden; }
+.session-list .session + .session { border-top: 1px solid var(--border-color); }
+.list-group__title { margin: var(--space-6) 0 var(--space-2); color: var(--text-muted-strong); font-size: var(--text-sm); font-weight: 700; }
+.list-group__title:first-child { margin-top: 0; }
+.session { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: var(--space-4); padding: var(--space-3) var(--space-4); }
+.session__thumb { display: grid; place-items: center; width: 48px; height: 48px; overflow: hidden; border-radius: var(--radius-md); background: var(--subject-soft, var(--gray-100)); color: var(--subject-ink, var(--gray-500)); }
+.session__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.session__title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); font-weight: 700; font-size: var(--text-base); }
+.session__meta { margin-top: 2px; color: var(--text-muted-strong); font-size: var(--text-sm); }
+.session__end { display: flex; align-items: center; gap: var(--space-2); }
+.session__duration { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* ---- Metas semanais (MVP-09/10) ---- */
+.goal { display: flex; flex-direction: column; gap: var(--space-3); }
+.goal__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
+.goal__numbers { display: flex; align-items: baseline; gap: 0.4rem; font-variant-numeric: tabular-nums; }
+.goal__current { font-size: var(--text-xl); font-weight: 800; letter-spacing: -0.01em; }
+.goal__target { color: var(--text-muted-strong); font-size: var(--text-sm); }
+.goal__foot { color: var(--text-muted-strong); font-size: var(--text-sm); }
+.goal--done { background: var(--success-soft); border-color: var(--success-border); }
+
+/* ---- Gráfico de barras por dia ---- */
+.bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--space-2); align-items: end; }
+.bars__col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 0.3rem; }
+.bars__value { height: 1rem; color: var(--text-muted-strong); font-size: 0.72rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.bars__bar { width: 100%; max-width: 38px; min-height: 4px; border-radius: 8px 8px 4px 4px; background: var(--gray-300); }
+.bars__bar--done { background: var(--brand-orange); }
+.bars__bar--pending { background: var(--orange-200); }
+.bars__bar--empty { background: var(--gray-100); }
+.bars__label { color: var(--text-muted-strong); font-size: 0.72rem; font-weight: 600; }
+
+/* ---- Foto da sessão (MVP-12) ---- */
+.photo-preview { position: relative; display: inline-block; }
+.photo-preview img { display: block; width: 88px; height: 88px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
+.photo-preview__remove { position: absolute; top: -8px; right: -8px; display: grid; place-items: center; width: 24px; height: 24px; border: 0; border-radius: 50%; background: var(--brand-dark); color: #fff; cursor: pointer; }
+
+/* ---- Cartão de compartilhamento manual (MVP-13) ---- */
+.share-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 340px;
+  aspect-ratio: 4 / 5;
+  padding: var(--space-6);
+  border-radius: var(--radius-xl);
+  background: var(--brand-dark);
+  color: #fff;
+}
+.share-card .logo { color: #fff; }
+.share-card__big { color: var(--brand-orange); font-size: 3.25rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+.share-card__sub { margin-top: var(--space-2); color: rgba(255, 255, 255, 0.72); font-size: var(--text-sm); }
+.share-card .progress { background: rgba(255, 255, 255, 0.16); height: 8px; }
+.share-card__row { display: flex; justify-content: space-between; font-size: var(--text-sm); font-weight: 600; margin-bottom: 0.35rem; }
+
+/* ==========================================================================
+   14. AUTENTICAÇÃO (classes já usadas na tela de Login)
+   ========================================================================== */
+.auth-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2rem 1rem; background: #ffffff; }
+.auth-card { width: 100%; max-width: 380px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-xl); box-shadow: var(--shadow-md); padding: 2.5rem 2rem; }
+.auth-logo { text-align: center; font-size: 1.6rem; font-weight: 800; margin-bottom: 1.5rem; }
+.auth-logo .brand-accent { color: var(--brand-orange); }
+.auth-card h1 { text-align: center; font-size: 1.5rem; margin: 0 0 0.4rem; }
+.auth-subtitle { text-align: center; color: var(--text-muted); font-size: 0.9rem; margin: 0 0 1.5rem; line-height: 1.4; }
+.auth-form { display: flex; flex-direction: column; }
+.auth-form label { font-size: 0.85rem; font-weight: 600; margin: 0.9rem 0 0.4rem; }
+.auth-form input { width: 100%; padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.95rem; background: #ffffff; }
+.auth-form input:focus { outline: none; border-color: var(--brand-orange); box-shadow: var(--focus-ring); }
+.auth-submit { margin-top: 1.5rem; padding: 0.85rem; border: none; border-radius: var(--radius-pill); background-color: var(--brand-orange); color: var(--brand-dark); font-weight: 700; font-size: 1rem; cursor: pointer; transition: background-color var(--ease); }
+.auth-submit:hover:not(:disabled) { background-color: var(--brand-orange-hover); }
+.auth-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.auth-forgot { display: block; text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted-strong); text-decoration: none; }
+.auth-forgot:hover { text-decoration: underline; }
+.auth-switch { margin-top: 1.5rem; text-align: center; font-size: 0.88rem; color: var(--text-muted-strong); }
+.auth-switch a { color: var(--orange-800); font-weight: 700; text-decoration: none; }
+.auth-switch a:hover { text-decoration: underline; }
+
+</style>
+<style>
+/* ===== Estilos da página de documentação (não fazem parte do Design System) ===== */
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  --doc-bg: #fafafa;
+  --doc-surface: #ffffff;
+  --doc-text: #1a1a1a;
+  --doc-muted: #5f6672;
+  --doc-border: #e2e2e5;
+  --doc-link: #8f5f00;
+  --doc-code-bg: #1a1a1a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --doc-bg: #111113;
+    --doc-surface: #1b1b1e;
+    --doc-text: #f4f4f5;
+    --doc-muted: #a1a1aa;
+    --doc-border: #2e2e33;
+    --doc-link: #f2b629;
+    --doc-code-bg: #0b0b0c;
+  }
+}
+:root[data-theme="dark"] {
+  --doc-bg: #111113;
+  --doc-surface: #1b1b1e;
+  --doc-text: #f4f4f5;
+  --doc-muted: #a1a1aa;
+  --doc-border: #2e2e33;
+  --doc-link: #f2b629;
+  --doc-code-bg: #0b0b0c;
+}
+html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px); scroll-behavior: smooth; }
+body { background: var(--doc-bg); color: var(--doc-text); }
+
+.doc-top {
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 70;
+  background: color-mix(in srgb, var(--doc-bg) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--doc-border);
+}
+.doc-top__inner { max-width: 1120px; margin: 0 auto; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 20px; }
+.doc-top .logo { color: var(--doc-text); }
+.doc-top nav { display: flex; gap: 4px; margin-left: auto; overflow-x: auto; }
+.doc-top nav a { padding: 6px 12px; border-radius: 999px; color: var(--doc-muted); font-size: 0.85rem; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.doc-top nav a:hover { color: var(--doc-text); background: color-mix(in srgb, var(--doc-text) 8%, transparent); }
+
+.doc-wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px 96px; }
+.doc-hero { padding: 56px 0 24px; max-width: 760px; }
+.doc-hero h1 { font-size: clamp(2rem, 6vw, 3.1rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+.doc-hero p { margin-top: 16px; color: var(--doc-muted); font-size: 1.05rem; line-height: 1.6; }
+.doc-hero .row { margin-top: 20px; }
+.doc-pill { padding: 4px 12px; border-radius: 999px; border: 1px solid var(--doc-border); background: var(--doc-surface); color: var(--doc-muted); font-size: 0.8rem; font-weight: 600; }
+
+.doc-section { padding-top: 64px; }
+.doc-section > h2 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; }
+.doc-section > .doc-lead { margin-top: 8px; color: var(--doc-muted); max-width: 70ch; line-height: 1.6; }
+.doc-block { margin-top: 36px; }
+.doc-block > h3 { font-size: 1.1rem; font-weight: 700; }
+.doc-block > p.doc-note { margin: 6px 0 14px; color: var(--doc-muted); font-size: 0.9rem; max-width: 75ch; line-height: 1.55; }
+.doc-block code, .doc-note code, .doc-lead code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; background: color-mix(in srgb, var(--doc-text) 8%, transparent); padding: 1px 6px; border-radius: 6px; }
+
+.stage { background: #ffffff; color: var(--brand-dark); border: 1px solid var(--doc-border); border-radius: 16px; padding: 24px; overflow-x: auto; }
+.stage--gray { background: #ebebed; }
+.stage + .stage { margin-top: 12px; }
+.stage-label { margin: 0 0 12px; color: var(--text-muted-strong); font-size: 0.8rem; font-weight: 600; }
+.stage .row + .row { margin-top: 16px; }
+.spec-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.states-grid { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+
+/* Swatches */
+.swatch { border: 1px solid var(--doc-border); border-radius: 14px; background: var(--doc-surface); overflow: hidden; text-align: left; padding: 0; cursor: pointer; color: var(--doc-text); }
+.swatch:hover { border-color: var(--doc-muted); }
+.swatch__chip { height: 64px; border-bottom: 1px solid var(--doc-border); }
+.swatch__meta { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
+.swatch__meta strong { font-size: 0.82rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.swatch__meta span { font-size: 0.8rem; color: var(--doc-muted); }
+.swatch__meta em { font-style: normal; font-size: 0.78rem; color: var(--doc-muted); }
+.scale-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 8px; }
+.scale-chip { border-radius: 10px; border: 1px solid var(--doc-border); overflow: hidden; background: var(--doc-surface); padding: 0; text-align: left; cursor: pointer; color: var(--doc-text); }
+.scale-chip div { height: 44px; }
+.scale-chip span { display: block; padding: 6px 8px; font-size: 0.72rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--doc-muted); }
+
+/* Tabelas */
+.doc-table-wrap { overflow-x: auto; border: 1px solid var(--doc-border); border-radius: 14px; background: var(--doc-surface); }
+.doc-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.doc-table th, .doc-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--doc-border); vertical-align: top; }
+.doc-table th { color: var(--doc-muted); font-weight: 600; font-size: 0.8rem; }
+.doc-table tr:last-child td { border-bottom: 0; }
+.doc-table td code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82em; }
+.pass { color: #15803d; font-weight: 700; }
+.fail { color: #b45309; font-weight: 700; }
+:root[data-theme="dark"] .pass { color: #4ade80; }
+:root[data-theme="dark"] .fail { color: #fbbf24; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pass { color: #4ade80; } :root:not([data-theme="light"]) .fail { color: #fbbf24; } }
+.contrast-sample { display: inline-block; padding: 2px 10px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; }
+
+/* Tipografia */
+.type-row { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
+.type-row:last-child { border-bottom: 0; }
+.type-row small { color: var(--text-muted-strong); font-size: 0.78rem; line-height: 1.4; }
+@media (max-width: 560px) { .type-row { grid-template-columns: 1fr; gap: 4px; } }
+
+/* Espaçamento, bordas, sombras */
+.space-row { display: flex; align-items: center; gap: 14px; padding: 5px 0; font-size: 0.85rem; }
+.space-row code { width: 110px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.8rem; flex: none; }
+.space-row i { display: block; height: 14px; background: var(--brand-orange); border-radius: 3px; }
+.space-row span { color: var(--text-muted-strong); }
+.sample-box { height: 96px; display: grid; place-items: center; background: #fff; border: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; font-weight: 600; padding: 8px; }
+.sample-box small { display: block; color: var(--text-muted-strong); font-weight: 500; margin-top: 2px; }
+
+/* Demos dentro dos stages */
+.demo-navbar { border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; }
+.demo-navbar .navbar { position: static; }
+.tabbar--demo { display: grid; position: static; max-width: 390px; border: 1px solid var(--border-color); border-radius: 14px; }
+
+/* Device frame para as telas */
+.screens-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; justify-content: space-between; margin: 20px 0 14px; }
+.screens-tabs { display: flex; gap: 6px; overflow-x: auto; max-width: 100%; padding-bottom: 2px; }
+.screens-tabs button { border: 1px solid var(--doc-border); background: var(--doc-surface); color: var(--doc-text); border-radius: 999px; padding: 7px 14px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.screens-tabs button.is-active { background: var(--brand-dark); color: #fff; border-color: var(--brand-dark); }
+:root[data-theme="dark"] .screens-tabs button.is-active { background: #f4f4f5; color: #1a1a1a; border-color: #f4f4f5; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .screens-tabs button.is-active { background: #f4f4f5; color: #1a1a1a; border-color: #f4f4f5; } }
+.device-toggle .segmented { background: color-mix(in srgb, var(--doc-text) 10%, transparent); }
+.device-toggle .segmented__item { color: var(--doc-muted); }
+.device-toggle .segmented__item.is-active { background: #fff; color: #1a1a1a; }
+.device { width: 100%; margin: 0 auto; border: 1px solid var(--doc-border); border-radius: 20px; overflow: hidden; background: #fff; color: var(--brand-dark); box-shadow: var(--shadow-md); transition: max-width 0.25s ease; }
+.device--mobile { max-width: 390px; }
+.device .app-shell { min-height: 0; }
+.screen { display: none; }
+.screen.is-active { display: block; }
+.demo-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 14px; padding: 10px 14px; border: 1px dashed var(--doc-border); border-radius: 12px; font-size: 0.85rem; color: var(--doc-muted); }
+.demo-toolbar .segmented__item { color: var(--text-muted-strong); }
+.demo-toolbar .segmented { background: color-mix(in srgb, var(--doc-text) 10%, transparent); }
+.demo-toolbar .segmented__item.is-active { background: #fff; color: #1a1a1a; }
+
+.alerts-slot:not(:has(> :not([hidden]))) { display: none; }
+.req-ref { font-size: 0.72rem; font-weight: 700; color: var(--text-muted-strong); }
+
+/* Código */
+.code { position: relative; margin: 0; padding: 18px 20px; background: var(--doc-code-bg); color: #e8e8ea; border-radius: 14px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; line-height: 1.6; overflow-x: auto; white-space: pre; }
+.code .c { color: #8b8b93; }
+.copy-btn { position: absolute; top: 10px; right: 10px; border: 1px solid #3a3a40; background: #26262a; color: #e8e8ea; border-radius: 8px; font-size: 0.75rem; font-weight: 600; padding: 4px 10px; cursor: pointer; }
+.two-col { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+
+/* Detalhes dos mockups */
+.screen .share-card { margin: 0 auto; }
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.idle-box { max-width: 460px; margin: 0 auto; }
+.timer-wrap { max-width: 460px; margin: 0 auto; }
+.subject-list li { list-style: none; }
+.subject-list { margin: 0; padding: 0; }
+</style>
+</head>
+<body>
+
+<!-- Sprite de ícones (traço de 2px, estilo Lucide) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24"><path d="M10 2h4"/><path d="m12 14 3-3"/><circle cx="12" cy="14" r="8"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14M12 5v14"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3l14 9-14 9z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/></symbol>
+    <symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51l-6.82 3.98"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+  </defs>
+</svg>
+
+<header class="doc-top">
+  <div class="doc-top__inner">
+    <a class="logo" href="#top">Study<span class="brand-accent">Rats</span></a>
+    <nav aria-label="Seções">
+      <a href="#fundamentos">Fundamentos</a>
+      <a href="#componentes">Componentes</a>
+      <a href="#telas">Telas do MVP</a>
+      <a href="#uso">Como usar</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc-wrap" id="top">
+
+  <section class="doc-hero">
+    <h1>Design System StudyRats</h1>
+    <p>Tokens, componentes e telas do MVP, construídos a partir da sua tela de login e do Documento de Requisitos (MVP-01 a MVP-13). O laranja marca a ação e o progresso, o verde marca meta cumprida, e o cinza deixa o resto quieto.</p>
+    <div class="row">
+      <span class="doc-pill">Versão 1.0</span>
+      <span class="doc-pill">React + CSS puro</span>
+      <span class="doc-pill">Tema claro</span>
+    </div>
+  </section>
+
+  <!-- ===================================================== FUNDAMENTOS -->
+  <section class="doc-section" id="fundamentos">
+    <h2>Fundamentos</h2>
+    <p class="doc-lead">Tudo vira variável CSS. Os nomes que já existem no seu login (<code>--brand-orange</code>, <code>--card-bg</code>, <code>--border-color</code>…) continuam valendo, então nada do que você já fez quebra. Clique em uma cor para copiar o valor.</p>
+
+    <div class="doc-block">
+      <h3>Marca e neutros</h3>
+      <p class="doc-note">Extraídos da tela de login: preto <code>#1a1a1a</code> nos textos e no logo, laranja <code>#f2a900</code> nas ações, cartão <code>#f4f4f5</code> e borda <code>#e2e2e5</code>.</p>
+      <div class="spec-grid" id="sw-brand"></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Escala de laranja e cinza</h3>
+      <div class="stage">
+        <p class="stage-label">Laranja (use 500 para fundo, 600 no hover, 800 para texto)</p>
+        <div class="scale-row" id="sc-orange"></div>
+        <p class="stage-label" style="margin-top:20px">Cinza</p>
+        <div class="scale-row" id="sc-gray"></div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Feedback</h3>
+      <p class="doc-note">Cada estado tem fundo suave, texto escuro, borda e uma cor sólida para ícones e botões. Verde significa sempre "cumprido" (meta batida, sessão salva).</p>
+      <div class="spec-grid" id="sw-feedback"></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Cores de disciplina</h3>
+      <p class="doc-note">Seis cores atribuídas pela ordem de cadastro. Fica só no front-end (índice da disciplina módulo 6), então não exige campo novo no banco. Evitam o laranja da marca para não confundir com ação.</p>
+      <div class="stage"><div class="row" id="subject-demo"></div></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Contraste</h3>
+      <p class="doc-note">Calculado ao vivo (WCAG). Dois pontos merecem atenção na referência atual: o link "Criar conta" em laranja e o cinza de apoio sobre o cartão cinza. Por isso o sistema traz <code>--orange-800</code> para texto laranja e <code>--text-muted-strong</code> para texto pequeno.</p>
+      <div class="doc-table-wrap"><table class="doc-table"><thead><tr><th>Par</th><th>Exemplo</th><th>Razão</th><th>Resultado</th></tr></thead><tbody id="contrast-body"></tbody></table></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Tipografia</h3>
+      <p class="doc-note">Fonte do sistema (a mesma do seu CSS atual): leve, instantânea e sem dependência externa. A personalidade vem do peso: 800 no logo, títulos e números; 600 em rótulos; 400 no texto corrido. Números usam <code>tabular-nums</code> para o cronômetro não "dançar".</p>
+      <div class="stage" id="type-stage"></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Espaçamento</h3>
+      <p class="doc-note">Base de 4px. Dentro de cartão use 20px (<code>--space-5</code>), entre cartões 16px, entre seções de uma página 24px.</p>
+      <div class="stage" id="space-stage"></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Bordas</h3>
+      <div class="spec-grid" id="radius-grid"></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Sombras</h3>
+      <p class="doc-note">Sombras são raras: a maioria dos cartões usa só a borda. Sombra aparece em coisas que flutuam (card de login, menu, modal, toast).</p>
+      <div class="stage stage--gray"><div class="spec-grid" id="shadow-grid"></div></div>
+    </div>
+  </section>
+
+  <!-- ===================================================== COMPONENTES -->
+  <section class="doc-section" id="componentes">
+    <h2>Componentes</h2>
+    <p class="doc-lead">Cada componente é uma classe (ou duas, com modificador). Todos têm estado de foco visível, e os desabilitados ficam a 60% de opacidade, como o botão do seu login.</p>
+
+    <div class="doc-block">
+      <h3>Botões</h3>
+      <p class="doc-note"><code>.btn</code> + <code>.btn--primary | --dark | --secondary | --ghost | --danger | --danger-outline</code>. Tamanhos <code>--sm</code> e <code>--lg</code>, e <code>--block</code> para largura total. Use um único primário por tela.</p>
+      <div class="stage">
+        <div class="row">
+          <button class="btn btn--primary">Entrar</button>
+          <button class="btn btn--dark">Salvar meta</button>
+          <button class="btn btn--secondary">Cancelar</button>
+          <button class="btn btn--ghost">Esqueci minha senha</button>
+          <button class="btn btn--danger">Excluir sessão</button>
+          <button class="btn btn--danger-outline">Excluir</button>
+        </div>
+        <div class="row">
+          <button class="btn btn--primary btn--lg"><svg class="icon icon--fill"><use href="#i-play"/></svg>Começar a estudar</button>
+          <button class="btn btn--primary"><svg class="icon icon--fill"><use href="#i-play"/></svg>Retomar</button>
+          <button class="btn btn--secondary btn--sm"><svg class="icon"><use href="#i-plus"/></svg>Nova meta</button>
+          <button class="btn btn--secondary btn--icon" aria-label="Adicionar foto"><svg class="icon"><use href="#i-camera"/></svg></button>
+          <button class="btn btn--ghost btn--icon btn--sm" aria-label="Excluir"><svg class="icon"><use href="#i-trash"/></svg></button>
+        </div>
+        <div class="row">
+          <button class="btn btn--primary" disabled>Entrando...</button>
+          <button class="btn btn--secondary" disabled>Desabilitado</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Campos de formulário</h3>
+      <p class="doc-note"><code>.field</code> agrupa <code>.label</code>, <code>.input</code> (ou <code>.select</code>) e <code>.field-hint</code> / <code>.field-error</code>. Fundo sempre branco, mesmo quando o navegador faz autofill (aquele azul claro do print do login vem do navegador, e o sistema neutraliza).</p>
+      <div class="stage">
+        <div class="states-grid">
+          <div class="field"><label class="label" for="d1">E-mail</label><input class="input" id="d1" type="email" placeholder="voce@exemplo.com"></div>
+          <div class="field"><label class="label" for="d2">Senha</label>
+            <div class="password-field"><input class="input" id="d2" type="password" value="12345678"><button type="button" class="password-toggle" data-toggle-pass="d2">Mostrar</button></div>
+            <p class="field-hint">Mínimo de 8 caracteres.</p></div>
+          <div class="field"><label class="label" for="d3">Nome da disciplina</label><input class="input is-invalid" id="d3" value="Cálculo II"><p class="field-error">Você já tem uma disciplina com esse nome.</p></div>
+          <div class="field"><label class="label" for="d4">Disciplina</label><select class="select" id="d4"><option>Cálculo II</option><option>Estruturas de Dados</option></select></div>
+          <div class="field"><label class="label">Tempo da meta</label>
+            <div class="row row--nowrap" style="--row-gap:8px">
+              <div class="input-group" style="flex:1"><input class="input" type="number" value="3" min="0" aria-label="Horas"><span class="input-group__addon">h</span></div>
+              <div class="input-group" style="flex:1"><input class="input" type="number" value="30" min="0" max="59" aria-label="Minutos"><span class="input-group__addon">min</span></div>
+            </div></div>
+          <div class="field"><label class="label" for="d5">Desabilitado</label><input class="input" id="d5" value="pedro@gmail.com" disabled></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Alertas e toast</h3>
+      <p class="doc-note"><code>.alert--info | --success | --warning | --error | --brand</code>. Mensagens de erro dizem o que aconteceu e o que fazer, sem pedir desculpa. O toast confirma uma ação com o mesmo verbo do botão ("Excluir" gera "Sessão excluída").</p>
+      <div class="stage">
+        <div class="stack">
+          <div class="alert alert--warning"><svg class="icon"><use href="#i-alert"/></svg><div class="alert__body"><div class="alert__title">Sua ofensiva de 6 dias está em risco</div>Você ainda não estudou hoje. Estude pelo menos 20 minutos até meia-noite para manter a sequência.<div class="alert__actions"><button class="btn btn--primary btn--sm">Começar a estudar</button></div></div></div>
+          <div class="alert alert--success"><svg class="icon"><use href="#i-check"/></svg><div class="alert__body">Cadastro realizado! Faça login para continuar.</div></div>
+          <div class="alert alert--error" role="alert"><svg class="icon"><use href="#i-alert"/></svg><div class="alert__body">E-mail ou senha incorretos. Confira os dados e tente de novo.</div></div>
+          <div class="alert alert--info"><svg class="icon"><use href="#i-info"/></svg><div class="alert__body">Sessões encerradas automaticamente contam o tempo até a última atividade registrada.</div></div>
+        </div>
+        <div class="row" style="margin-top:20px">
+          <button class="btn btn--secondary btn--sm" data-toast="Sessão salva: 42 min de Estruturas de Dados" data-toast-type="success">Mostrar toast de sucesso</button>
+          <button class="btn btn--secondary btn--sm" data-toast="Não foi possível salvar. Tente novamente." data-toast-type="error">Mostrar toast de erro</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Badges e tags de disciplina</h3>
+      <div class="stage">
+        <div class="row">
+          <span class="badge">Neutro</span>
+          <span class="badge badge--brand">Em andamento</span>
+          <span class="badge badge--success"><svg class="icon"><use href="#i-check"/></svg>Meta batida</span>
+          <span class="badge badge--warning">Encerrada automaticamente</span>
+          <span class="badge badge--error">Em risco</span>
+          <span class="badge badge--info">Pausada</span>
+        </div>
+        <div class="row">
+          <span class="tag subject-1"><i class="tag__dot"></i>Cálculo II</span>
+          <span class="tag subject-2"><i class="tag__dot"></i>Estruturas de Dados</span>
+          <span class="tag subject-3"><i class="tag__dot"></i>Redes de Computadores</span>
+          <span class="tag subject-4"><i class="tag__dot"></i>Inglês</span>
+          <span class="tag subject-5"><i class="tag__dot"></i>Física</span>
+          <span class="tag subject-6"><i class="tag__dot"></i>Química</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Cards</h3>
+      <p class="doc-note"><code>.card</code> é o cartão cinza do login, com borda e raio de 16px. Variações: <code>--flat</code> (branco), <code>--raised</code> (sombra), <code>--brand</code> (destaque laranja, só para ofensiva) e <code>--success</code> (meta batida).</p>
+      <div class="stage">
+        <div class="states-grid">
+          <div class="card"><div class="card__header"><span class="card__title">Card padrão</span><span class="badge">Novo</span></div><div class="stat"><div class="stat__label">Tempo na semana</div><div class="stat__value">4h 02min</div><div class="stat__meta">5 sessões</div></div></div>
+          <div class="card card--brand"><div class="streak"><div class="streak__flame"><svg class="icon"><use href="#i-flame"/></svg></div><div><div class="streak__value">6</div><div class="streak__label">dias de ofensiva</div></div></div></div>
+          <div class="card card--success goal"><div class="goal__head"><span class="tag subject-2"><i class="tag__dot"></i>Estruturas de Dados</span><span class="badge badge--success"><svg class="icon"><use href="#i-check"/></svg>Meta batida</span></div><div class="goal__numbers"><span class="goal__current">1h 12min</span><span class="goal__target">de 1h</span></div><div class="progress progress--done"><div class="progress__bar" style="width:100%"></div></div></div>
+          <div class="card card--flat card--raised"><div class="card__title">Card elevado</div><p class="t-small t-muted" style="margin-top:6px">Use para o que flutua sobre a página, como o cartão de login.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Barra de progresso</h3>
+      <p class="doc-note">Herda a cor da disciplina (<code>.subject-N</code> no pai). Fica verde com <code>.progress--done</code> quando a meta é atingida.</p>
+      <div class="stage">
+        <div class="stack" style="max-width:520px">
+          <div class="subject-1 stack stack--sm"><div class="row row--between t-small"><span class="tag subject-1"><i class="tag__dot"></i>Cálculo II</span><span class="t-num">1h 25 / 3h</span></div><div class="progress"><div class="progress__bar" style="width:47%"></div></div></div>
+          <div class="subject-4 stack stack--sm"><div class="row row--between t-small"><span class="tag subject-4"><i class="tag__dot"></i>Inglês</span><span class="t-num">35min / 2h</span></div><div class="progress"><div class="progress__bar" style="width:29%"></div></div></div>
+          <div class="stack stack--sm"><div class="row row--between t-small"><strong>Meta cumprida</strong><span class="t-num">1h 12 / 1h</span></div><div class="progress progress--done"><div class="progress__bar" style="width:100%"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Navbar e barra de abas</h3>
+      <p class="doc-note">No desktop os links ficam no topo. Abaixo de 720px de largura o <code>.app-shell</code> esconde os links e mostra <code>.tabbar</code> embaixo (5 destinos, alcançáveis com o polegar). A ofensiva fica sempre visível no topo como <code>.chip</code>.</p>
+      <div class="stage">
+        <div class="demo-navbar">
+          <header class="navbar"><div class="navbar__inner">
+            <a class="logo" href="#componentes">Study<span class="brand-accent">Rats</span></a>
+            <nav class="navbar__links">
+              <a class="navbar__link is-active" href="#componentes" aria-current="page">Início</a>
+              <a class="navbar__link" href="#componentes">Estudar</a>
+              <a class="navbar__link" href="#componentes">Histórico</a>
+              <a class="navbar__link" href="#componentes">Metas</a>
+              <a class="navbar__link" href="#componentes">Progresso</a>
+            </nav>
+            <div class="navbar__actions"><span class="chip"><svg class="icon icon--fill"><use href="#i-flame"/></svg>6</span><button class="avatar" aria-label="Menu da conta">PC</button></div>
+          </div></header>
+        </div>
+        <p class="stage-label" style="margin-top:20px">Versão celular</p>
+        <nav class="tabbar tabbar--demo" aria-label="Navegação principal">
+          <a class="tabbar__item is-active" href="#componentes"><svg class="icon"><use href="#i-home"/></svg>Início</a>
+          <a class="tabbar__item" href="#componentes"><svg class="icon"><use href="#i-timer"/></svg>Estudar</a>
+          <a class="tabbar__item" href="#componentes"><svg class="icon"><use href="#i-list"/></svg>Histórico</a>
+          <a class="tabbar__item" href="#componentes"><svg class="icon"><use href="#i-target"/></svg>Metas</a>
+          <a class="tabbar__item" href="#componentes"><svg class="icon"><use href="#i-chart"/></svg>Progresso</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Modal</h3>
+      <p class="doc-note">Raio de 24px (igual ao card de login). No celular vira uma folha que sobe da base. Fecha com Esc, com o clique no fundo e sempre tem uma saída clara. Ações destrutivas pedem confirmação (RF-07).</p>
+      <div class="stage stage--gray">
+        <div class="modal" style="margin:0 auto">
+          <h4 class="modal__title">Excluir esta sessão?</h4>
+          <p class="modal__text">Cálculo II, hoje, 14:10. O tempo dela deixa de contar nas suas metas e na ofensiva. Essa ação não pode ser desfeita.</p>
+          <div class="modal__actions"><button class="btn btn--secondary">Cancelar</button><button class="btn btn--danger">Excluir sessão</button></div>
+        </div>
+        <div class="row" style="margin-top:16px;justify-content:center"><button class="btn btn--dark btn--sm" data-open-modal="m-delete">Abrir modal de verdade</button></div>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Estado vazio e menu</h3>
+      <div class="stage">
+        <div class="states-grid">
+          <div class="card card--flat"><div class="empty"><div class="empty__icon"><svg class="icon icon--lg"><use href="#i-book"/></svg></div><div class="empty__title">Nenhuma disciplina ainda</div><p class="empty__text">Cadastre uma disciplina uma vez e escolha ela sempre que for estudar.</p><button class="btn btn--primary"><svg class="icon"><use href="#i-plus"/></svg>Cadastrar disciplina</button></div></div>
+          <div style="position:relative;min-height:230px"><div class="menu" style="position:static;display:block;max-width:240px">
+            <div class="menu__header"><div class="t-small" style="font-weight:700">Pedro Cauã</div><div class="t-caption t-muted">pedro@gmail.com</div></div>
+            <button class="menu__item"><svg class="icon"><use href="#i-book"/></svg>Disciplinas</button>
+            <button class="menu__item"><svg class="icon"><use href="#i-logout"/></svg>Sair</button>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== TELAS -->
+  <section class="doc-section" id="telas">
+    <h2>Telas do MVP</h2>
+    <p class="doc-lead">Seis telas depois do login, uma para cada bloco do escopo. São interativas: troque de tela pela navbar, inicie um cronômetro, exclua uma sessão, crie uma meta. Alterne entre desktop e celular no botão abaixo.</p>
+
+    <div class="doc-block">
+      <h3>Do requisito para a tela</h3>
+      <div class="doc-table-wrap"><table class="doc-table"><thead><tr><th>Tela</th><th>O que resolve</th><th>Requisitos</th></tr></thead><tbody>
+        <tr><td><strong>Início</strong></td><td>Ofensiva, progresso de hoje, sessão em andamento, aviso de risco, metas e últimas sessões</td><td>MVP-05, 08, 10, 11</td></tr>
+        <tr><td><strong>Estudar</strong></td><td>Escolher disciplina, iniciar, pausar, retomar, encerrar e anexar foto</td><td>MVP-02, 03, 04, 12 · RNF-12</td></tr>
+        <tr><td><strong>Disciplinas</strong></td><td>Cadastrar uma vez, sem duplicar</td><td>MVP-02 · RF-02</td></tr>
+        <tr><td><strong>Histórico</strong></td><td>Sessões por dia, status de encerramento automático, exclusão com confirmação</td><td>MVP-06, 07 · RF-07</td></tr>
+        <tr><td><strong>Metas</strong></td><td>Meta semanal por disciplina e feedback visual de meta batida</td><td>MVP-09, 10 · RF-10, 11</td></tr>
+        <tr><td><strong>Progresso</strong></td><td>Ofensiva, dias da semana, calendário e cartão para compartilhar manualmente</td><td>MVP-08, 13 · RF-14</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="screens-bar">
+      <div class="screens-tabs" id="screen-tabs" role="tablist">
+        <button data-go="inicio" class="is-active">Início</button>
+        <button data-go="estudar">Estudar</button>
+        <button data-go="disciplinas">Disciplinas</button>
+        <button data-go="historico">Histórico</button>
+        <button data-go="metas">Metas</button>
+        <button data-go="progresso">Progresso</button>
+      </div>
+      <div class="device-toggle"><div class="segmented" id="device-toggle"><button class="segmented__item is-active" data-device="desktop">Desktop</button><button class="segmented__item" data-device="mobile">Celular</button></div></div>
+    </div>
+
+    <div class="device" id="device">
+      <div class="app-shell">
+        <header class="navbar"><div class="navbar__inner">
+          <a class="logo" href="#telas" data-go="inicio">Study<span class="brand-accent">Rats</span></a>
+          <nav class="navbar__links" id="nav-links">
+            <button class="navbar__link" data-go="inicio">Início</button>
+            <button class="navbar__link" data-go="estudar">Estudar</button>
+            <button class="navbar__link" data-go="historico">Histórico</button>
+            <button class="navbar__link" data-go="metas">Metas</button>
+            <button class="navbar__link" data-go="progresso">Progresso</button>
+          </nav>
+          <div class="navbar__actions">
+            <span class="chip" title="Dias de ofensiva"><svg class="icon icon--fill"><use href="#i-flame"/></svg><span id="chip-streak">6</span></span>
+            <div class="menu-wrap">
+              <button class="avatar" id="avatar-btn" aria-label="Menu da conta" aria-expanded="false">PC</button>
+              <div class="menu" id="user-menu" hidden>
+                <div class="menu__header"><div class="t-small" style="font-weight:700">Pedro Cauã</div><div class="t-caption t-muted">pedro@gmail.com</div></div>
+                <button class="menu__item" data-go="disciplinas"><svg class="icon"><use href="#i-book"/></svg>Disciplinas</button>
+                <button class="menu__item" data-toast="Você saiu da conta (demonstração)"><svg class="icon"><use href="#i-logout"/></svg>Sair</button>
+              </div>
+            </div>
+          </div>
+        </div></header>
+
+        <!-- ============ INÍCIO ============ -->
+        <div class="screen is-active" id="screen-inicio">
+          <div class="page">
+            <div class="demo-toolbar">
+              <span>Estado da tela:</span>
+              <div class="segmented" id="dash-state">
+                <button class="segmented__item is-active" data-state="normal">Estudando hoje</button>
+                <button class="segmented__item" data-state="safe">Ofensiva garantida</button>
+                <button class="segmented__item" data-state="risk">Em risco</button>
+                <button class="segmented__item" data-state="active">Sessão aberta</button>
+              </div>
+            </div>
+            <div class="page__header">
+              <div><h1 class="page__title">Olá, Pedro</h1><p class="page__subtitle">Quinta-feira, 1 de outubro</p></div>
+              <button class="btn btn--primary btn--lg" data-go="estudar"><svg class="icon icon--fill"><use href="#i-play"/></svg>Começar a estudar</button>
+            </div>
+
+            <div class="stack alerts-slot" style="margin-bottom:var(--space-5)">
+              <div class="alert alert--warning" id="dash-risk" hidden><svg class="icon"><use href="#i-alert"/></svg><div class="alert__body"><div class="alert__title">Sua ofensiva de 6 dias está em risco</div>Você ainda não estudou hoje. Estude pelo menos 20 minutos até meia-noite (horário de Brasília) para manter a sequência.<div class="alert__actions"><button class="btn btn--primary btn--sm" data-go="estudar">Estudar agora</button></div></div></div>
+              <div class="alert alert--brand" id="dash-active" hidden><svg class="icon"><use href="#i-clock"/></svg><div class="alert__body"><div class="alert__title">Você tem uma sessão em andamento</div>Cálculo II, iniciada às 08:40. Seu progresso foi guardado, mesmo com a aba fechada.<div class="alert__actions"><button class="btn btn--primary btn--sm" data-go="estudar"><svg class="icon icon--fill"><use href="#i-play"/></svg>Continuar sessão</button></div></div></div>
+            </div>
+
+            <div class="grid grid--main-side">
+              <div class="stack stack--lg">
+                <div class="card">
+                  <div class="card__header"><span class="card__title">Metas da semana</span><button class="link t-small" data-go="metas">Ver todas</button></div>
+                  <div class="stack">
+                    <div class="goal subject-2"><div class="goal__head"><span class="tag"><i class="tag__dot"></i>Estruturas de Dados</span><span class="badge badge--success"><svg class="icon"><use href="#i-check"/></svg>Meta batida</span></div><div class="progress progress--done"><div class="progress__bar" style="width:100%"></div></div></div>
+                    <div class="goal subject-1"><div class="goal__head"><span class="tag"><i class="tag__dot"></i>Cálculo II</span><span class="t-small t-num t-muted">1h 25 / 3h</span></div><div class="progress"><div class="progress__bar" style="width:47%"></div></div></div>
+                    <div class="goal subject-4"><div class="goal__head"><span class="tag"><i class="tag__dot"></i>Inglês</span><span class="t-small t-num t-muted">35min / 2h</span></div><div class="progress"><div class="progress__bar" style="width:29%"></div></div></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="row row--between" style="margin-bottom:var(--space-3)"><h2 class="t-h2">Últimas sessões</h2><button class="link t-small" data-go="historico">Ver histórico</button></div>
+                  <div class="session-list">
+                    <div class="session subject-2"><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-image"/></svg></div><div><div class="session__title">Estruturas de Dados</div><div class="session__meta">Hoje, 09:15 às 09:27</div></div><div class="session__duration">12min</div></div>
+                    <div class="session subject-3"><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-timer"/></svg></div><div><div class="session__title">Redes de Computadores <span class="badge badge--warning">Automática</span></div><div class="session__meta">Ontem, 20:10</div></div><div class="session__duration">50min</div></div>
+                    <div class="session subject-4"><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-timer"/></svg></div><div><div class="session__title">Inglês</div><div class="session__meta">Terça, 19:40 às 20:15</div></div><div class="session__duration">35min</div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stack">
+                <div class="card card--brand">
+                  <div class="streak"><div class="streak__flame"><svg class="icon icon--fill"><use href="#i-flame"/></svg></div><div><div class="streak__value" id="d-streak">6</div><div class="streak__label">dias de ofensiva</div></div></div>
+                  <div class="week" style="margin-top:var(--space-5)">
+                    <div class="week__day">D<span class="day-dot day-dot--done"><svg class="icon"><use href="#i-check"/></svg></span></div>
+                    <div class="week__day">S<span class="day-dot day-dot--done"><svg class="icon"><use href="#i-check"/></svg></span></div>
+                    <div class="week__day">T<span class="day-dot day-dot--done"><svg class="icon"><use href="#i-check"/></svg></span></div>
+                    <div class="week__day">Q<span class="day-dot day-dot--done"><svg class="icon"><use href="#i-check"/></svg></span></div>
+                    <div class="week__day">Q<span class="day-dot day-dot--today" id="d-today-dot"></span></div>
+                    <div class="week__day">S<span class="day-dot day-dot--future"></span></div>
+                    <div class="week__day">S<span class="day-dot day-dot--future"></span></div>
+                  </div>
+                  <div style="margin-top:var(--space-5)">
+                    <div class="row row--between t-small" style="margin-bottom:6px"><strong id="d-today-label">12 de 20 min hoje</strong><span class="t-muted" id="d-today-hint">faltam 8 min</span></div>
+                    <div class="progress progress--brand" id="d-today-progress"><div class="progress__bar" id="d-today-bar" style="width:60%"></div></div>
+                  </div>
+                </div>
+                <div class="card card--flat">
+                  <div class="card__title">Compartilhe seu progresso</div>
+                  <p class="t-small t-muted" style="margin:6px 0 14px">Gere um cartão com sua semana e mande para quem quiser.</p>
+                  <button class="btn btn--secondary btn--sm" data-go="progresso"><svg class="icon"><use href="#i-share"/></svg>Ver cartão</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ ESTUDAR ============ -->
+        <div class="screen" id="screen-estudar">
+          <div class="page">
+            <div class="demo-toolbar">
+              <span>Demonstração:</span>
+              <button class="btn btn--secondary btn--sm" id="sim-5">Avançar 5 min</button>
+              <span class="t-caption">O cronômetro roda de verdade. O anel mostra o quanto falta para os 20 minutos do dia (RN-04).</span>
+            </div>
+            <div class="page__header"><div><h1 class="page__title">Estudar</h1><p class="page__subtitle">Escolha a disciplina e comece. O tempo fica guardado, mesmo se você fechar a aba.</p></div></div>
+
+            <div class="card card--flat" style="max-width:520px;margin:0 auto">
+              <!-- Ocioso -->
+              <div id="st-idle" class="idle-box stack">
+                <div class="field">
+                  <label class="label" for="st-subject">Disciplina</label>
+                  <select class="select" id="st-subject"><option value="Cálculo II|1">Cálculo II</option><option value="Estruturas de Dados|2" selected>Estruturas de Dados</option><option value="Redes de Computadores|3">Redes de Computadores</option><option value="Inglês|4">Inglês</option></select>
+                  <p class="field-hint">Não encontrou? <button class="link" data-go="disciplinas" type="button">Cadastre uma disciplina</button></p>
+                </div>
+                <button class="btn btn--primary btn--lg btn--block" id="st-start"><svg class="icon icon--fill"><use href="#i-play"/></svg>Iniciar sessão</button>
+              </div>
+
+              <!-- Em andamento / pausada -->
+              <div id="st-run" class="timer-wrap" hidden>
+                <div class="timer" id="timer">
+                  <span class="tag" id="st-tag"><i class="tag__dot"></i><span id="st-tag-name">Estruturas de Dados</span></span>
+                  <div class="timer__ring">
+                    <svg viewBox="0 0 120 120" aria-hidden="true"><circle class="timer__track" cx="60" cy="60" r="54" fill="none" stroke-width="8"/><circle class="timer__progress" id="ring" cx="60" cy="60" r="54" fill="none" stroke-width="8" stroke-dasharray="339.292" stroke-dashoffset="339.292"/></svg>
+                    <div class="timer__center" role="timer" aria-live="off">
+                      <div class="timer__time" id="st-time">00:00:00</div>
+                      <div class="timer__label" id="st-ring-label">12 de 20 min hoje</div>
+                    </div>
+                  </div>
+                  <div class="row" style="justify-content:center"><span id="st-status" class="badge badge--success"><span class="pulse"></span>Em andamento</span></div>
+                  <div class="timer__actions">
+                    <button class="btn btn--secondary btn--lg" id="st-pause"><svg class="icon icon--fill"><use href="#i-pause"/></svg><span>Pausar</span></button>
+                    <button class="btn btn--dark btn--lg" id="st-stop"><svg class="icon icon--fill"><use href="#i-stop"/></svg>Encerrar</button>
+                  </div>
+                  <div class="stack stack--sm" style="align-items:center">
+                    <input class="file-input" type="file" accept="image/*" id="st-file">
+                    <button class="btn btn--ghost btn--sm" id="st-photo-btn"><svg class="icon"><use href="#i-camera"/></svg>Adicionar foto do estudo</button>
+                    <div class="photo-preview" id="st-photo" hidden><img alt="Foto da sessão" id="st-photo-img"><button class="photo-preview__remove" id="st-photo-remove" aria-label="Remover foto"><svg class="icon"><use href="#i-x"/></svg></button></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ DISCIPLINAS ============ -->
+        <div class="screen" id="screen-disciplinas">
+          <div class="page">
+            <div class="page__header"><div><h1 class="page__title">Disciplinas</h1><p class="page__subtitle">Cadastre uma vez e escolha em qualquer sessão.</p></div></div>
+            <div class="grid grid--main-side">
+              <div class="card card--flat">
+                <div class="card__header"><span class="card__title">Suas disciplinas</span><span class="badge" id="subj-count">4</span></div>
+                <ul class="subject-list stack stack--sm" id="subject-list">
+                  <li class="row row--between subject-1"><span class="tag"><i class="tag__dot"></i>Cálculo II</span><span class="t-small t-muted t-num">1h 25 na semana</span></li>
+                  <li class="row row--between subject-2"><span class="tag"><i class="tag__dot"></i>Estruturas de Dados</span><span class="t-small t-muted t-num">1h 12 na semana</span></li>
+                  <li class="row row--between subject-3"><span class="tag"><i class="tag__dot"></i>Redes de Computadores</span><span class="t-small t-muted t-num">50min na semana</span></li>
+                  <li class="row row--between subject-4"><span class="tag"><i class="tag__dot"></i>Inglês</span><span class="t-small t-muted t-num">35min na semana</span></li>
+                </ul>
+              </div>
+              <div class="card">
+                <div class="card__title" style="margin-bottom:14px">Nova disciplina</div>
+                <form id="subject-form" class="stack" novalidate>
+                  <div class="field"><label class="label" for="subject-name">Nome</label><input class="input" id="subject-name" placeholder="Ex.: Banco de Dados" autocomplete="off"><p class="field-error" id="subject-error" hidden></p></div>
+                  <button class="btn btn--primary btn--block" type="submit"><svg class="icon"><use href="#i-plus"/></svg>Cadastrar</button>
+                </form>
+                <p class="field-hint" style="margin-top:12px">Tente cadastrar "calculo ii" para ver a checagem de duplicidade (RF-02).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ HISTÓRICO ============ -->
+        <div class="screen" id="screen-historico">
+          <div class="page">
+            <div class="page__header"><div><h1 class="page__title">Histórico</h1><p class="page__subtitle">Todas as sessões que você registrou. Para corrigir um erro, exclua a sessão.</p></div></div>
+            <div id="history-body">
+              <div class="list-group__title">Hoje, quinta 1 de outubro</div>
+              <div class="session-list">
+                <div class="session subject-2" data-session><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-image"/></svg></div><div><div class="session__title">Estruturas de Dados</div><div class="session__meta">09:15 às 09:27 · com foto</div></div><div class="session__end"><span class="session__duration">12min</span><button class="btn btn--ghost btn--icon btn--sm" data-delete aria-label="Excluir sessão"><svg class="icon"><use href="#i-trash"/></svg></button></div></div>
+              </div>
+              <div class="list-group__title">Quarta, 30 de setembro</div>
+              <div class="session-list">
+                <div class="session subject-3" data-session><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-timer"/></svg></div><div><div class="session__title">Redes de Computadores <span class="badge badge--warning">Encerrada automaticamente</span></div><div class="session__meta">20:10 · sem encerramento por 4h</div></div><div class="session__end"><span class="session__duration">50min</span><button class="btn btn--ghost btn--icon btn--sm" data-delete aria-label="Excluir sessão"><svg class="icon"><use href="#i-trash"/></svg></button></div></div>
+              </div>
+              <div class="list-group__title">Terça, 29 de setembro</div>
+              <div class="session-list">
+                <div class="session subject-4" data-session><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-timer"/></svg></div><div><div class="session__title">Inglês</div><div class="session__meta">19:40 às 20:15</div></div><div class="session__end"><span class="session__duration">35min</span><button class="btn btn--ghost btn--icon btn--sm" data-delete aria-label="Excluir sessão"><svg class="icon"><use href="#i-trash"/></svg></button></div></div>
+                <div class="session subject-1" data-session><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-image"/></svg></div><div><div class="session__title">Cálculo II</div><div class="session__meta">14:00 às 14:40 · com foto</div></div><div class="session__end"><span class="session__duration">40min</span><button class="btn btn--ghost btn--icon btn--sm" data-delete aria-label="Excluir sessão"><svg class="icon"><use href="#i-trash"/></svg></button></div></div>
+              </div>
+              <div class="list-group__title">Segunda, 28 de setembro</div>
+              <div class="session-list">
+                <div class="session subject-2" data-session><div class="session__thumb"><svg class="icon icon--lg"><use href="#i-image"/></svg></div><div><div class="session__title">Estruturas de Dados</div><div class="session__meta">16:00 às 17:00 · com foto</div></div><div class="session__end"><span class="session__duration">1h</span><button class="btn btn--ghost btn--icon btn--sm" data-delete aria-label="Excluir sessão"><svg class="icon"><use href="#i-trash"/></svg></button></div></div>
+              </div>
+            </div>
+            <div class="card card--flat" id="history-empty" hidden><div class="empty"><div class="empty__icon"><svg class="icon icon--lg"><use href="#i-list"/></svg></div><div class="empty__title">Nenhuma sessão por aqui</div><p class="empty__text">Quando você encerrar uma sessão de estudo, ela aparece nesta lista.</p><button class="btn btn--primary" data-go="estudar"><svg class="icon icon--fill"><use href="#i-play"/></svg>Começar a estudar</button></div></div>
+          </div>
+        </div>
+
+        <!-- ============ METAS ============ -->
+        <div class="screen" id="screen-metas">
+          <div class="page">
+            <div class="page__header">
+              <div><h1 class="page__title">Metas da semana</h1><p class="page__subtitle">27 de setembro a 3 de outubro · o tempo é contado por disciplina.</p></div>
+              <button class="btn btn--primary" data-open-modal="m-goal"><svg class="icon"><use href="#i-plus"/></svg>Nova meta</button>
+            </div>
+            <div class="grid grid--2" id="goals-grid">
+              <div class="card card--success goal subject-2"><div class="goal__head"><span class="tag"><i class="tag__dot"></i>Estruturas de Dados</span><span class="badge badge--success"><svg class="icon"><use href="#i-check"/></svg>Meta batida</span></div><div class="goal__numbers"><span class="goal__current">1h 12min</span><span class="goal__target">de 1h</span></div><div class="progress progress--done"><div class="progress__bar" style="width:100%"></div></div><div class="goal__foot">Você passou da meta em 12 minutos.</div></div>
+              <div class="card goal subject-1"><div class="goal__head"><span class="tag"><i class="tag__dot"></i>Cálculo II</span><span class="badge">47%</span></div><div class="goal__numbers"><span class="goal__current">1h 25min</span><span class="goal__target">de 3h</span></div><div class="progress"><div class="progress__bar" style="width:47%"></div></div><div class="goal__foot">Faltam 1h 35min até sábado.</div></div>
+              <div class="card goal subject-4"><div class="goal__head"><span class="tag"><i class="tag__dot"></i>Inglês</span><span class="badge">29%</span></div><div class="goal__numbers"><span class="goal__current">35min</span><span class="goal__target">de 2h</span></div><div class="progress"><div class="progress__bar" style="width:29%"></div></div><div class="goal__foot">Faltam 1h 25min até sábado.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ============ PROGRESSO ============ -->
+        <div class="screen" id="screen-progresso">
+          <div class="page">
+            <div class="page__header"><div><h1 class="page__title">Progresso</h1><p class="page__subtitle">Sua constância nas últimas semanas.</p></div></div>
+            <div class="grid grid--stats" style="margin-bottom:var(--space-4)">
+              <div class="card card--brand"><div class="stat__label">Ofensiva atual</div><div class="stat__value">6 dias</div><div class="stat__meta">Hoje ainda não validou</div></div>
+              <div class="card"><div class="stat__label">Tempo na semana</div><div class="stat__value">4h 02min</div><div class="stat__meta">5 sessões</div></div>
+              <div class="card"><div class="stat__label">Metas batidas</div><div class="stat__value">1 de 3</div><div class="stat__meta">nesta semana</div></div>
+            </div>
+            <div class="grid grid--2" style="margin-bottom:var(--space-4)">
+              <div class="card card--flat">
+                <div class="card__header"><span class="card__title">Tempo por dia</span><span class="t-caption t-muted">laranja = dia validado (20 min ou mais)</span></div>
+                <div class="bars" style="height:170px">
+                  <div class="bars__col"><span class="bars__value">45</span><div class="bars__bar bars__bar--done" style="height:72px"></div><span class="bars__label">D</span></div>
+                  <div class="bars__col"><span class="bars__value">60</span><div class="bars__bar bars__bar--done" style="height:96px"></div><span class="bars__label">S</span></div>
+                  <div class="bars__col"><span class="bars__value">75</span><div class="bars__bar bars__bar--done" style="height:120px"></div><span class="bars__label">T</span></div>
+                  <div class="bars__col"><span class="bars__value">50</span><div class="bars__bar bars__bar--done" style="height:80px"></div><span class="bars__label">Q</span></div>
+                  <div class="bars__col"><span class="bars__value">12</span><div class="bars__bar bars__bar--pending" style="height:19px"></div><span class="bars__label">Q</span></div>
+                  <div class="bars__col"><span class="bars__value"></span><div class="bars__bar bars__bar--empty" style="height:4px"></div><span class="bars__label">S</span></div>
+                  <div class="bars__col"><span class="bars__value"></span><div class="bars__bar bars__bar--empty" style="height:4px"></div><span class="bars__label">S</span></div>
+                </div>
+                <p class="t-caption t-muted" style="margin-top:10px">Minutos estudados em cada dia.</p>
+              </div>
+              <div class="card card--flat">
+                <div class="card__header"><span class="card__title">Últimas 4 semanas</span></div>
+                <div class="heatmap" id="heatmap"></div>
+                <div class="row" style="margin-top:12px;--row-gap:14px"><span class="t-caption t-muted row" style="--row-gap:6px"><i style="width:12px;height:12px;border-radius:4px;background:var(--brand-orange);display:inline-block"></i>estudou</span><span class="t-caption t-muted row" style="--row-gap:6px"><i style="width:12px;height:12px;border-radius:4px;background:var(--gray-200);display:inline-block"></i>sem estudo</span></div>
+              </div>
+            </div>
+            <div class="card card--flat" style="margin-bottom:var(--space-4)">
+              <div class="card__header"><span class="card__title">Tempo por disciplina na semana</span></div>
+              <div class="stack">
+                <div class="subject-1 stack stack--sm"><div class="row row--between t-small"><span class="tag"><i class="tag__dot"></i>Cálculo II</span><span class="t-num">1h 25min</span></div><div class="progress"><div class="progress__bar" style="width:100%"></div></div></div>
+                <div class="subject-2 stack stack--sm"><div class="row row--between t-small"><span class="tag"><i class="tag__dot"></i>Estruturas de Dados</span><span class="t-num">1h 12min</span></div><div class="progress"><div class="progress__bar" style="width:85%"></div></div></div>
+                <div class="subject-3 stack stack--sm"><div class="row row--between t-small"><span class="tag"><i class="tag__dot"></i>Redes de Computadores</span><span class="t-num">50min</span></div><div class="progress"><div class="progress__bar" style="width:59%"></div></div></div>
+                <div class="subject-4 stack stack--sm"><div class="row row--between t-small"><span class="tag"><i class="tag__dot"></i>Inglês</span><span class="t-num">35min</span></div><div class="progress"><div class="progress__bar" style="width:41%"></div></div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card__header"><span class="card__title">Compartilhar manualmente</span></div>
+              <div class="grid grid--2" style="align-items:center">
+                <div class="share-card">
+                  <div class="logo">Study<span class="brand-accent">Rats</span></div>
+                  <div>
+                    <div class="share-card__big">4h 02min</div>
+                    <div class="share-card__sub">estudadas de 27 set a 3 out · 6 dias de ofensiva</div>
+                  </div>
+                  <div class="stack stack--sm">
+                    <div><div class="share-card__row"><span>Cálculo II</span><span>1h 25</span></div><div class="progress"><div class="progress__bar" style="width:100%;background:var(--brand-orange)"></div></div></div>
+                    <div><div class="share-card__row"><span>Estruturas de Dados</span><span>1h 12</span></div><div class="progress"><div class="progress__bar" style="width:85%;background:var(--brand-orange)"></div></div></div>
+                    <div><div class="share-card__row"><span>Redes de Computadores</span><span>50min</span></div><div class="progress"><div class="progress__bar" style="width:59%;background:var(--brand-orange)"></div></div></div>
+                  </div>
+                </div>
+                <div class="stack">
+                  <p class="t-small t-muted">O cartão mostra só os seus dados. Nada de ranking nem comparação com outras pessoas, como define o escopo do MVP. O envio é sempre um gesto seu.</p>
+                  <button class="btn btn--primary" id="share-btn"><svg class="icon"><use href="#i-share"/></svg>Compartilhar</button>
+                  <button class="btn btn--secondary" id="copy-btn"><svg class="icon"><use href="#i-copy"/></svg>Copiar texto</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="tabbar" id="tabbar" aria-label="Navegação principal">
+          <button class="tabbar__item" data-go="inicio"><svg class="icon"><use href="#i-home"/></svg>Início</button>
+          <button class="tabbar__item" data-go="estudar"><svg class="icon"><use href="#i-timer"/></svg>Estudar</button>
+          <button class="tabbar__item" data-go="historico"><svg class="icon"><use href="#i-list"/></svg>Histórico</button>
+          <button class="tabbar__item" data-go="metas"><svg class="icon"><use href="#i-target"/></svg>Metas</button>
+          <button class="tabbar__item" data-go="progresso"><svg class="icon"><use href="#i-chart"/></svg>Progresso</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== COMO USAR -->
+  <section class="doc-section" id="uso">
+    <h2>Como usar no projeto</h2>
+    <p class="doc-lead">O arquivo <code>studyrats-design-system.css</code> contém tudo acima e também as classes <code>auth-*</code> que o seu login já usa, então você pode trocar o CSS atual por ele sem mexer no Login.jsx.</p>
+
+    <div class="two-col" style="margin-top:28px">
+      <div class="doc-block" style="margin-top:0">
+        <h3>1. Importar uma vez</h3>
+        <pre class="code"><span class="c">// src/main.jsx</span>
+import "./styles/studyrats-design-system.css";</pre>
+        <h3 style="margin-top:24px">2. Layout das páginas logadas</h3>
+        <pre class="code">&lt;div className="app-shell"&gt;
+  &lt;Navbar /&gt;
+  &lt;main className="page"&gt;
+    &lt;div className="page__header"&gt;
+      &lt;h1 className="page__title"&gt;Metas&lt;/h1&gt;
+    &lt;/div&gt;
+    {children}
+  &lt;/main&gt;
+  &lt;TabBar /&gt;
+&lt;/div&gt;</pre>
+      </div>
+      <div class="doc-block" style="margin-top:0">
+        <h3>3. Componentes por composição</h3>
+        <pre class="code"><span class="c">// Meta batida: só trocar os modificadores</span>
+&lt;div className={`card goal subject-${i} ${done ? "card--success" : ""}`}&gt;
+  &lt;span className="tag"&gt;
+    &lt;i className="tag__dot" /&gt;{name}
+  &lt;/span&gt;
+  &lt;div className={`progress ${done ? "progress--done" : ""}`}&gt;
+    &lt;div className="progress__bar" style={{ width: `${pct}%` }} /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+      </div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Regras de ouro</h3>
+      <div class="doc-table-wrap"><table class="doc-table"><tbody>
+        <tr><td><strong>Um primário por tela</strong></td><td>Só um botão laranja sólido por tela ou modal. O resto é <code>--secondary</code> ou <code>--ghost</code>.</td></tr>
+        <tr><td><strong>Laranja é ação ou progresso</strong></td><td>Não use laranja para decorar. Texto em laranja sobre fundo claro usa <code>--orange-800</code>.</td></tr>
+        <tr><td><strong>Verde é cumprido</strong></td><td>Meta batida, sessão salva, ofensiva validada. Nunca para ação.</td></tr>
+        <tr><td><strong>Modal fora do app-shell</strong></td><td>Renderize <code>.modal-backdrop</code> e <code>.toast-region</code> no body (<code>createPortal</code>). O <code>.app-shell</code> usa container queries, o que prende elementos fixos dentro dele.</td></tr>
+        <tr><td><strong>Ícones</strong></td><td>Use <code>lucide-react</code>. Os ícones desta página seguem o mesmo traço de 2px.</td></tr>
+        <tr><td><strong>Fora do MVP</strong></td><td>Ranking, comparação e desafios (DJ-01 a DJ-03) e edição de sessão (DJ-04) não têm tela aqui, de propósito.</td></tr>
+      </tbody></table></div>
+    </div>
+
+    <div class="doc-block">
+      <h3>Pontos em aberto que o design já antecipa</h3>
+      <p class="doc-note">O documento deixa três decisões para a implementação. O design assume o seguinte e é fácil trocar: (1) sessão encerrada por timeout mostra o tempo até a última atividade, com o selo "Encerrada automaticamente"; (2) a foto aparece no histórico como miniatura; (3) o aviso de risco da ofensiva existe também dentro do app, além do e-mail do RF-12 (isso é uma sugestão, não está no documento).</p>
+    </div>
+  </section>
+</main>
+
+<!-- ===================================================== OVERLAYS (fora do app-shell) -->
+<div id="overlays">
+  <div class="modal-backdrop" id="m-delete" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-delete-t">
+      <h2 class="modal__title" id="m-delete-t">Excluir esta sessão?</h2>
+      <p class="modal__text" id="m-delete-text">O tempo dela deixa de contar nas suas metas e na ofensiva. Essa ação não pode ser desfeita.</p>
+      <div class="modal__actions"><button class="btn btn--secondary" data-close-modal>Cancelar</button><button class="btn btn--danger" id="m-delete-confirm">Excluir sessão</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="m-stop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-stop-t">
+      <h2 class="modal__title" id="m-stop-t">Encerrar sessão?</h2>
+      <p class="modal__text" id="m-stop-text"></p>
+      <div class="modal__body stack stack--sm" id="m-stop-body"></div>
+      <div class="modal__actions"><button class="btn btn--secondary" data-close-modal>Continuar estudando</button><button class="btn btn--primary" id="m-stop-confirm">Encerrar e salvar</button></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="m-goal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-goal-t">
+      <h2 class="modal__title" id="m-goal-t">Nova meta semanal</h2>
+      <p class="modal__text">Defina quanto tempo você quer estudar uma disciplina nesta semana.</p>
+      <div class="modal__body stack">
+        <div class="field"><label class="label" for="goal-subject">Disciplina</label><select class="select" id="goal-subject"><option value="Redes de Computadores|3">Redes de Computadores</option></select></div>
+        <div class="field"><label class="label">Tempo na semana</label>
+          <div class="row row--nowrap" style="--row-gap:8px">
+            <div class="input-group" style="flex:1"><input class="input" id="goal-h" type="number" min="0" value="2" aria-label="Horas"><span class="input-group__addon">h</span></div>
+            <div class="input-group" style="flex:1"><input class="input" id="goal-m" type="number" min="0" max="59" value="0" aria-label="Minutos"><span class="input-group__addon">min</span></div>
+          </div>
+          <p class="field-error" id="goal-error" hidden>Informe um tempo maior que zero.</p>
+        </div>
+      </div>
+      <div class="modal__actions"><button class="btn btn--secondary" data-close-modal>Cancelar</button><button class="btn btn--primary" id="goal-save">Criar meta</button></div>
+    </div>
+  </div>
+
+  <div class="toast-region" id="toasts" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- utilidades ---------- */
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  function fmtMin(total) {
+    var h = Math.floor(total / 60), m = total % 60;
+    if (h && m) return h + "h " + m + "min";
+    if (h) return h + "h";
+    return m + "min";
+  }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function fmtClock(sec) { return pad(Math.floor(sec / 3600)) + ":" + pad(Math.floor(sec / 60) % 60) + ":" + pad(sec % 60); }
+
+  /* ---------- toast ---------- */
+  function toast(msg, type) {
+    var el = document.createElement("div");
+    el.className = "toast" + (type ? " toast--" + type : "");
+    el.innerHTML = (type === "error" ? '<svg class="icon"><use href="#i-alert"/></svg>' : '<svg class="icon"><use href="#i-check"/></svg>') + "<span></span>";
+    el.lastChild.textContent = msg;
+    $("#toasts").appendChild(el);
+    setTimeout(function () { el.remove(); }, 3200);
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest("[data-toast]");
+    if (t) toast(t.getAttribute("data-toast"), t.getAttribute("data-toast-type") || "success");
+  });
+
+  function copyText(text, okMsg) {
+    function ok() { toast(okMsg || "Copiado", "success"); }
+    function fallback() {
+      try {
+        var ta = document.createElement("textarea");
+        ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        var done = document.execCommand("copy"); ta.remove();
+        if (done) ok(); else toast("Copie manualmente: " + text, "error");
+      } catch (err) { toast("Copie manualmente: " + text, "error"); }
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+      else fallback();
+    } catch (err) { fallback(); }
+  }
+
+  /* ---------- tokens: renderização ---------- */
+  function swatch(name, hex, desc) {
+    return '<button class="swatch" data-copy="' + hex + '" type="button"><div class="swatch__chip" style="background:' + hex + '"></div><div class="swatch__meta"><strong>' + name + '</strong><span>' + hex + '</span>' + (desc ? '<em>' + desc + '</em>' : '') + '</div></button>';
+  }
+  var brand = [
+    ["--brand-dark", "#1a1a1a", "Texto, logo, botão escuro"],
+    ["--brand-orange", "#f2a900", "Ação primária e progresso"],
+    ["--brand-orange-hover", "#e09b00", "Hover do botão primário"],
+    ["--orange-800", "#8f5f00", "Texto laranja sobre claro"],
+    ["--card-bg", "#f4f4f5", "Fundo de card"],
+    ["--border-color", "#e2e2e5", "Bordas e divisórias"],
+    ["--text-muted", "#6b7280", "Texto de apoio"],
+    ["--text-muted-strong", "#52525b", "Apoio em texto pequeno"],
+    ["--color-bg", "#ffffff", "Fundo da página"]
+  ];
+  $("#sw-brand").innerHTML = brand.map(function (c) { return swatch(c[0], c[1], c[2]); }).join("");
+
+  var fb = [
+    ["--success", "#15803d", "Meta batida, sucesso"],
+    ["--success-bg", "#dcfce7", "Fundo de sucesso"],
+    ["--error", "#dc2626", "Erro, exclusão"],
+    ["--error-bg", "#fee2e2", "Fundo de erro"],
+    ["--warning", "#d97706", "Atenção, risco"],
+    ["--warning-bg", "#fef3c7", "Fundo de atenção"],
+    ["--info", "#0284c7", "Informação"],
+    ["--info-bg", "#e0f2fe", "Fundo de informação"]
+  ];
+  $("#sw-feedback").innerHTML = fb.map(function (c) { return swatch(c[0], c[1], c[2]); }).join("");
+
+  function scale(el, items) {
+    el.innerHTML = items.map(function (c) { return '<button class="scale-chip" type="button" data-copy="' + c[1] + '"><div style="background:' + c[1] + '"></div><span>' + c[0] + '<br>' + c[1] + '</span></button>'; }).join("");
+  }
+  scale($("#sc-orange"), [["50", "#fff8e5"], ["100", "#ffefc2"], ["200", "#ffe08a"], ["300", "#ffd04d"], ["500", "#f2a900"], ["600", "#e09b00"], ["700", "#c98d00"], ["800", "#8f5f00"]]);
+  scale($("#sc-gray"), [["50", "#f4f4f5"], ["100", "#ebebed"], ["200", "#e2e2e5"], ["300", "#cdcdd2"], ["400", "#9ca3af"], ["500", "#6b7280"], ["600", "#52525b"], ["700", "#3f3f46"], ["900", "#1a1a1a"]]);
+
+  var subjNames = ["Cálculo II", "Estruturas de Dados", "Redes", "Inglês", "Física", "Química"];
+  $("#subject-demo").innerHTML = subjNames.map(function (n, i) { return '<span class="tag subject-' + (i + 1) + '"><i class="tag__dot"></i>' + n + ' · subject-' + (i + 1) + '</span>'; }).join("");
+
+  /* contraste */
+  function lum(hex) {
+    var c = hex.replace("#", ""); var v = [0, 2, 4].map(function (i) {
+      var x = parseInt(c.substr(i, 2), 16) / 255; return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+    }); return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  }
+  function ratio(a, b) { var l1 = lum(a), l2 = lum(b); var hi = Math.max(l1, l2), lo = Math.min(l1, l2); return (hi + 0.05) / (lo + 0.05); }
+  var pairs = [
+    ["Texto principal sobre branco", "#1a1a1a", "#ffffff", "Título e corpo"],
+    ["Texto escuro sobre laranja", "#1a1a1a", "#f2a900", "Botão primário"],
+    ["Apoio sobre card cinza", "#6b7280", "#f4f4f5", "Subtítulos (use só em texto grande)"],
+    ["Apoio forte sobre card cinza", "#52525b", "#f4f4f5", "Texto pequeno em cards"],
+    ["Laranja da marca sobre card cinza", "#f2a900", "#f4f4f5", "Link 'Criar conta' atual"],
+    ["Laranja 800 sobre card cinza", "#8f5f00", "#f4f4f5", "Link acessível (.link)"],
+    ["Texto de sucesso sobre fundo verde", "#166534", "#dcfce7", "Alerta e badge de sucesso"],
+    ["Texto de erro sobre fundo vermelho", "#991b1b", "#fee2e2", "Alerta de erro"],
+    ["Branco sobre vermelho sólido", "#ffffff", "#dc2626", "Botão de excluir"]
+  ];
+  $("#contrast-body").innerHTML = pairs.map(function (p) {
+    var r = ratio(p[1], p[2]);
+    var res = r >= 4.5 ? '<span class="pass">AA (' + r.toFixed(1) + ':1)</span>' : (r >= 3 ? '<span class="fail">Só texto grande</span>' : '<span class="fail">Abaixo de AA</span>');
+    return '<tr><td>' + p[0] + '</td><td><span class="contrast-sample" style="color:' + p[1] + ';background:' + p[2] + '">Aa ' + p[3] + '</span></td><td>' + r.toFixed(2) + ':1</td><td>' + res + '</td></tr>';
+  }).join("");
+
+  /* tipografia */
+  var types = [
+    ["Display", "3.5rem · 800", "t-display", "00:42:17"],
+    ["Título de página", "1.9rem · 800", "t-title", "Metas da semana"],
+    ["Título H1", "1.5rem · 700", "t-h1", "Entrar"],
+    ["Título H2", "1.15rem · 700", "t-h2", "Últimas sessões"],
+    ["Título H3", "1rem · 700", "t-h3", "Estruturas de Dados"],
+    ["Corpo", "0.95rem · 400", "t-body", "Continue de onde parou nos seus estudos."],
+    ["Pequeno", "0.85rem · 600", "t-small", "Faltam 8 minutos para validar sua ofensiva."],
+    ["Legenda", "0.78rem · 400", "t-caption t-muted", "Mínimo de 8 caracteres."]
+  ];
+  $("#type-stage").innerHTML = types.map(function (t) { return '<div class="type-row"><small><strong>' + t[0] + '</strong><br>' + t[1] + '</small><div class="' + t[2] + '">' + t[3] + '</div></div>'; }).join("");
+
+  /* espaçamento */
+  var spaces = [["--space-1", 4], ["--space-2", 8], ["--space-3", 12], ["--space-4", 16], ["--space-5", 20], ["--space-6", 24], ["--space-8", 32], ["--space-10", 40], ["--space-12", 48], ["--space-16", 64]];
+  $("#space-stage").innerHTML = spaces.map(function (s) { return '<div class="space-row"><code>' + s[0] + '</code><i style="width:' + s[1] + 'px"></i><span>' + s[1] + 'px</span></div>'; }).join("");
+
+  /* bordas */
+  var radii = [["--radius-sm", "6px", "Detalhes pequenos"], ["--radius-md", "10px", "Inputs, menus"], ["--radius-lg", "16px", "Cards"], ["--radius-xl", "24px", "Login, modal, share"], ["--radius-pill", "999px", "Botões, tags, chips"]];
+  $("#radius-grid").innerHTML = radii.map(function (r) { return '<div class="sample-box" style="border-radius:' + r[1] + '"><div><code>' + r[0] + '</code><small>' + r[1] + ' · ' + r[2] + '</small></div></div>'; }).join("");
+
+  /* sombras */
+  var shadows = [["--shadow-sm", "0 1px 2px", "Segmented ativo"], ["--shadow-md", "0 4px 24px", "Card de login"], ["--shadow-lg", "0 12px 40px", "Modal, menu, toast"], ["--focus-ring", "0 0 0 3px laranja", "Foco de campos e botões"]];
+  $("#shadow-grid").innerHTML = shadows.map(function (s) { return '<div class="sample-box" style="border-radius:16px;box-shadow:var(' + s[0] + ')"><div><code>' + s[0] + '</code><small>' + s[1] + ' · ' + s[2] + '</small></div></div>'; }).join("");
+
+  /* copiar cor / código */
+  document.addEventListener("click", function (e) {
+    var c = e.target.closest("[data-copy]");
+    if (c) copyText(c.getAttribute("data-copy"), "Cor " + c.getAttribute("data-copy") + " copiada");
+  });
+  $$("pre.code").forEach(function (pre) {
+    var b = document.createElement("button"); b.className = "copy-btn"; b.type = "button"; b.textContent = "Copiar";
+    b.addEventListener("click", function () { copyText(pre.innerText.replace(/^Copiar\n?/, ""), "Código copiado"); });
+    pre.appendChild(b);
+  });
+
+  /* mostrar/ocultar senha */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-toggle-pass]");
+    if (!b) return;
+    var inp = document.getElementById(b.getAttribute("data-toggle-pass"));
+    var show = inp.type === "password"; inp.type = show ? "text" : "password"; b.textContent = show ? "Ocultar" : "Mostrar";
+  });
+
+  /* ---------- modais ---------- */
+  var lastFocus = null;
+  function openModal(id) {
+    var m = document.getElementById(id); if (!m) return;
+    lastFocus = document.activeElement; m.hidden = false;
+    var f = $("input,select,button.btn--primary,button.btn--danger", m) || $("button", m); if (f) f.focus();
+  }
+  function closeModals() {
+    $$(".modal-backdrop").forEach(function (m) { m.hidden = true; });
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.addEventListener("click", function (e) {
+    var o = e.target.closest("[data-open-modal]");
+    if (o) { openModal(o.getAttribute("data-open-modal")); return; }
+    if (e.target.closest("[data-close-modal]")) { closeModals(); return; }
+    if (e.target.classList && e.target.classList.contains("modal-backdrop")) closeModals();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeModals(); });
+
+  /* ---------- navegação entre telas ---------- */
+  var current = "inicio";
+  function go(name) {
+    current = name;
+    $$(".screen").forEach(function (s) { s.classList.toggle("is-active", s.id === "screen-" + name); });
+    $$("#screen-tabs button").forEach(function (b) { b.classList.toggle("is-active", b.getAttribute("data-go") === name); });
+    var key = name === "disciplinas" ? "" : name;
+    $$("#nav-links .navbar__link, #tabbar .tabbar__item").forEach(function (b) {
+      var on = b.getAttribute("data-go") === key; b.classList.toggle("is-active", on);
+      if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+    $("#user-menu").hidden = true; $("#avatar-btn").setAttribute("aria-expanded", "false");
+  }
+  document.addEventListener("click", function (e) {
+    var g = e.target.closest("[data-go]");
+    if (!g || g.closest(".doc-top")) return;
+    if (g.tagName === "A") e.preventDefault();
+    go(g.getAttribute("data-go"));
+  });
+  go("inicio");
+
+  $("#avatar-btn").addEventListener("click", function (e) {
+    e.stopPropagation(); var m = $("#user-menu"); m.hidden = !m.hidden; this.setAttribute("aria-expanded", String(!m.hidden));
+  });
+  document.addEventListener("click", function (e) { if (!e.target.closest(".menu-wrap")) { $("#user-menu").hidden = true; } });
+
+  /* desktop / celular */
+  $$("#device-toggle [data-device]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      $$("#device-toggle .segmented__item").forEach(function (x) { x.classList.toggle("is-active", x === b); });
+      $("#device").classList.toggle("device--mobile", b.getAttribute("data-device") === "mobile");
+    });
+  });
+
+  /* ---------- Início: estados ---------- */
+  var dashStates = {
+    normal: { streak: 6, min: 12, label: "12 de 20 min hoje", hint: "faltam 8 min", chip: 6 },
+    safe:   { streak: 7, min: 45, label: "45 min hoje", hint: "ofensiva garantida", chip: 7 },
+    risk:   { streak: 6, min: 0, label: "0 de 20 min hoje", hint: "faltam 20 min", chip: 6 },
+    active: { streak: 6, min: 12, label: "12 de 20 min hoje", hint: "sessão em andamento", chip: 6 }
+  };
+  function setDash(state) {
+    var s = dashStates[state];
+    $$("#dash-state .segmented__item").forEach(function (b) { b.classList.toggle("is-active", b.getAttribute("data-state") === state); });
+    $("#dash-risk").hidden = state !== "risk";
+    $("#dash-active").hidden = state !== "active";
+    $("#d-streak").textContent = s.streak; $("#chip-streak").textContent = s.chip;
+    $("#d-today-label").textContent = s.label; $("#d-today-hint").textContent = s.hint;
+    var pct = Math.min(100, Math.round(s.min / 20 * 100));
+    var bar = $("#d-today-bar"); bar.style.width = pct + "%";
+    var prog = $("#d-today-progress"); prog.classList.toggle("progress--done", s.min >= 20); prog.classList.toggle("progress--brand", s.min < 20);
+    var dot = $("#d-today-dot");
+    if (s.min >= 20) { dot.className = "day-dot day-dot--done"; dot.innerHTML = '<svg class="icon"><use href="#i-check"/></svg>'; }
+    else { dot.className = "day-dot day-dot--today"; dot.innerHTML = ""; }
+  }
+  $$("#dash-state [data-state]").forEach(function (b) { b.addEventListener("click", function () { setDash(b.getAttribute("data-state")); }); });
+  setDash("normal");
+
+  /* ---------- Estudar: cronômetro ---------- */
+  var CIRC = 339.292, GOAL = 1200;
+  var T = { base: 720, elapsed: 0, running: false, paused: false, timer: null, subject: "Estruturas de Dados", color: "2", photo: false };
+  function renderTimer() {
+    $("#st-time").textContent = fmtClock(T.elapsed);
+    var total = T.base + T.elapsed, p = Math.min(1, total / GOAL);
+    $("#ring").style.strokeDashoffset = String(CIRC * (1 - p));
+    $("#timer").classList.toggle("timer--done", total >= GOAL);
+    $("#timer").classList.toggle("timer--paused", T.paused);
+    $("#st-ring-label").textContent = total >= GOAL ? "Ofensiva de hoje garantida" : Math.floor(total / 60) + " de 20 min hoje";
+  }
+  function tick() { if (T.running && !T.paused) { T.elapsed += 1; renderTimer(); } }
+  function setIdle() {
+    $("#st-idle").hidden = false; $("#st-run").hidden = true; T.running = false; clearInterval(T.timer); T.timer = null;
+  }
+  $("#st-start").addEventListener("click", function () {
+    var parts = $("#st-subject").value.split("|"); T.subject = parts[0]; T.color = parts[1];
+    T.elapsed = 0; T.running = true; T.paused = false; T.photo = false;
+    $("#st-tag").className = "tag subject-" + T.color; $("#st-tag-name").textContent = T.subject;
+    $("#st-photo").hidden = true;
+    $("#st-status").className = "badge badge--success"; $("#st-status").innerHTML = '<span class="pulse"></span>Em andamento';
+    $("#st-pause").innerHTML = '<svg class="icon icon--fill"><use href="#i-pause"/></svg><span>Pausar</span>';
+    $("#st-idle").hidden = true; $("#st-run").hidden = false;
+    renderTimer(); clearInterval(T.timer); T.timer = setInterval(tick, 1000);
+  });
+  $("#st-pause").addEventListener("click", function () {
+    T.paused = !T.paused;
+    if (T.paused) {
+      $("#st-status").className = "badge badge--info"; $("#st-status").textContent = "Pausada";
+      this.innerHTML = '<svg class="icon icon--fill"><use href="#i-play"/></svg><span>Retomar</span>';
+    } else {
+      $("#st-status").className = "badge badge--success"; $("#st-status").innerHTML = '<span class="pulse"></span>Em andamento';
+      this.innerHTML = '<svg class="icon icon--fill"><use href="#i-pause"/></svg><span>Pausar</span>';
+    }
+    renderTimer();
+  });
+  $("#sim-5").addEventListener("click", function () {
+    if (!T.running) { toast("Inicie uma sessão primeiro", "error"); return; }
+    if (T.paused) { toast("Retome a sessão para avançar o tempo", "error"); return; }
+    T.elapsed += 300; renderTimer();
+  });
+  $("#st-stop").addEventListener("click", function () {
+    var mins = Math.floor(T.elapsed / 60), total = Math.floor((T.base + T.elapsed) / 60);
+    $("#m-stop-text").textContent = T.subject + " · " + (mins ? fmtMin(mins) : "menos de 1 min") + " nesta sessão.";
+    var rows = [];
+    if (total >= 20) rows.push('<div class="alert alert--success"><svg class="icon"><use href="#i-check"/></svg><div class="alert__body">Com esta sessão você soma ' + fmtMin(total) + ' hoje. Ofensiva garantida.</div></div>');
+    else rows.push('<div class="alert alert--info"><svg class="icon"><use href="#i-info"/></svg><div class="alert__body">Hoje você soma ' + fmtMin(total) + '. Faltam ' + (20 - total) + ' min para validar a ofensiva.</div></div>');
+    if (T.photo) rows.push('<div class="t-small t-muted">1 foto será anexada a esta sessão.</div>');
+    $("#m-stop-body").innerHTML = rows.join("");
+    openModal("m-stop");
+  });
+  $("#m-stop-confirm").addEventListener("click", function () {
+    var mins = Math.floor(T.elapsed / 60);
+    T.base += T.elapsed; closeModals(); setIdle();
+    toast("Sessão salva: " + (mins ? fmtMin(mins) : "menos de 1 min") + " de " + T.subject, "success");
+    T.elapsed = 0;
+  });
+  /* foto */
+  $("#st-photo-btn").addEventListener("click", function () { $("#st-file").click(); });
+  $("#st-file").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) return;
+    if (!/^image\//.test(f.type)) { toast("Escolha um arquivo de imagem", "error"); return; }
+    if (f.size > 5 * 1024 * 1024) { toast("A imagem deve ter até 5 MB", "error"); return; }
+    var r = new FileReader();
+    r.onload = function () { $("#st-photo-img").src = r.result; $("#st-photo").hidden = false; T.photo = true; toast("Foto anexada à sessão", "success"); };
+    r.onerror = function () { toast("Não foi possível ler a imagem", "error"); };
+    r.readAsDataURL(f);
+  });
+  $("#st-photo-remove").addEventListener("click", function () { $("#st-photo").hidden = true; $("#st-photo-img").removeAttribute("src"); $("#st-file").value = ""; T.photo = false; });
+
+  /* ---------- Disciplinas ---------- */
+  var subjects = ["Cálculo II", "Estruturas de Dados", "Redes de Computadores", "Inglês"];
+  function norm(s) { return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase(); }
+  $("#subject-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var inp = $("#subject-name"), err = $("#subject-error"), name = inp.value.replace(/\s+/g, " ").trim();
+    function fail(msg) { err.textContent = msg; err.hidden = false; inp.classList.add("is-invalid"); inp.focus(); }
+    if (!name) { fail("Digite o nome da disciplina."); return; }
+    var dup = subjects.filter(function (s) { return norm(s) === norm(name); })[0];
+    if (dup) { fail("Você já tem uma disciplina chamada \u201c" + dup + "\u201d."); return; }
+    err.hidden = true; inp.classList.remove("is-invalid");
+    subjects.push(name); var idx = subjects.length;
+    var li = document.createElement("li"); li.className = "row row--between subject-" + (((idx - 1) % 6) + 1);
+    li.innerHTML = '<span class="tag"><i class="tag__dot"></i><span></span></span><span class="t-small t-muted t-num">0min na semana</span>';
+    li.querySelector(".tag span").textContent = name;
+    $("#subject-list").appendChild(li); $("#subj-count").textContent = subjects.length;
+    var val = name + "|" + (((idx - 1) % 6) + 1);
+    ["#st-subject", "#goal-subject"].forEach(function (sel) { var o = document.createElement("option"); o.value = val; o.textContent = name; $(sel).appendChild(o); });
+    inp.value = ""; toast("Disciplina cadastrada: " + name, "success");
+  });
+  $("#subject-name").addEventListener("input", function () { this.classList.remove("is-invalid"); $("#subject-error").hidden = true; });
+
+  /* ---------- Histórico: exclusão ---------- */
+  var pendingDelete = null;
+  $("#history-body").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-delete]"); if (!b) return;
+    pendingDelete = b.closest("[data-session]");
+    var title = pendingDelete.querySelector(".session__title").childNodes[0].textContent.trim();
+    var meta = pendingDelete.querySelector(".session__meta").textContent.split("·")[0].trim();
+    $("#m-delete-text").textContent = title + ", " + meta + ". O tempo dela deixa de contar nas suas metas e na ofensiva. Essa ação não pode ser desfeita.";
+    openModal("m-delete");
+  });
+  $("#m-delete-confirm").addEventListener("click", function () {
+    if (pendingDelete) {
+      var list = pendingDelete.parentElement; pendingDelete.remove(); pendingDelete = null;
+      if (!list.children.length) { var h = list.previousElementSibling; if (h && h.classList.contains("list-group__title")) h.remove(); list.remove(); }
+      if (!$("[data-session]", $("#history-body"))) { $("#history-body").hidden = true; $("#history-empty").hidden = false; }
+    }
+    closeModals(); toast("Sessão excluída", "success");
+  });
+
+  /* ---------- Metas: criar ---------- */
+  $("#goal-save").addEventListener("click", function () {
+    var h = parseInt($("#goal-h").value, 10) || 0, m = parseInt($("#goal-m").value, 10) || 0, total = h * 60 + m;
+    if (total <= 0) { $("#goal-error").hidden = false; return; }
+    $("#goal-error").hidden = true;
+    var parts = $("#goal-subject").value.split("|"), card = document.createElement("div");
+    card.className = "card goal subject-" + parts[1];
+    var done = parts[0] === "Redes de Computadores" ? 50 : 0, pct = Math.min(100, Math.round(done / total * 100));
+    card.innerHTML = '<div class="goal__head"><span class="tag"><i class="tag__dot"></i><span class="n"></span></span><span class="badge">' + pct + '%</span></div><div class="goal__numbers"><span class="goal__current">' + fmtMin(done) + '</span><span class="goal__target">de ' + fmtMin(total) + '</span></div><div class="progress"><div class="progress__bar" style="width:' + pct + '%"></div></div><div class="goal__foot">Faltam ' + fmtMin(Math.max(0, total - done)) + ' até sábado.</div>';
+    card.querySelector(".n").textContent = parts[0];
+    $("#goals-grid").appendChild(card); closeModals(); toast("Meta criada: " + parts[0], "success");
+  });
+
+  /* ---------- Progresso ---------- */
+  (function heat() {
+    var heads = ["D", "S", "T", "Q", "Q", "S", "S"], html = heads.map(function (h) { return '<div class="heatmap__head">' + h + '</div>'; }).join("");
+    var done = [1,1,0,1,1,1,0, 0,1,1,1,1,0,1, 1,1,0,1,0,0,0, 0,0,1,1,1,1,1], today = 25;
+    done[18] = 0; for (var i = 19; i <= 24; i++) done[i] = 1;
+    for (var k = 0; k < 28; k++) {
+      var cls = "heatmap__cell";
+      if (k > today) cls += " heatmap__cell--future"; else if (k === today) cls += " heatmap__cell--today"; else if (done[k]) cls += " heatmap__cell--done";
+      html += '<div class="' + cls + '"></div>';
+    }
+    $("#heatmap").innerHTML = html;
+  })();
+  var shareText = "Estudei 4h 02min nesta semana no StudyRats e estou com 6 dias de ofensiva.";
+  $("#share-btn").addEventListener("click", function () {
+    try {
+      if (navigator.share) { navigator.share({ title: "Meu progresso no StudyRats", text: shareText }).catch(function () {}); return; }
+    } catch (err) { /* segue para a cópia */ }
+    copyText(shareText, "Texto copiado. Cole onde quiser compartilhar");
+  });
+  $("#copy-btn").addEventListener("click", function () { copyText(shareText, "Texto copiado"); });
+})();
+</script>
+</body>
+</html>
